@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWINT — Paiement</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #00b0ea;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  .title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.08em; opacity: 0.9; }
+  .montant { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; letter-spacing: 0.03em; line-height: 1; }
+  .chf { font-size: 2rem; opacity: 0.7; }
+  .qr-box { background: white; border-radius: 20px; padding: 1.25rem; display: inline-block; }
+  .qr-box img { width: 220px; height: 220px; display: block; }
+  .instruction { font-size: 1rem; opacity: 0.85; max-width: 280px; line-height: 1.5; }
+  .instruction strong { font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="title">📱 {{ stand }}</div>
+  <div class="montant">{{ montant or '?' }} <span class="chf">CHF</span></div>
+  <div class="qr-box">
+    <img src="/api/qr-image" alt="QR TWINT">
+  </div>
+  <p class="instruction">
+    Scanne avec <strong>TWINT</strong><br>
+    et entre le montant<br>
+    <strong>{{ montant or '?' }} CHF</strong>
+  </p>
+</body>
+</html>

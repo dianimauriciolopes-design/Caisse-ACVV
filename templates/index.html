@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACCVS — Sélection Stand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bleu:    #003893;   /* bleu drapeau Cap-Vert */
+    --bleu2:   #0047b8;
+    --bleu3:   #1a5fd4;
+    --rouge:   #cf2027;   /* rouge drapeau Cap-Vert */
+    --jaune:   #f7d000;   /* étoiles drapeau Cap-Vert */
+    --blanc:   #ffffff;
+    --creme:   #f4f1e8;
+    --noir:    #0a0c14;
+    --gris:    #111827;
+    --gris2:   #1e2433;
+    --gris3:   #2d3447;
+  }
+
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  header {
+    background: var(--bleu);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 4px solid var(--rouge);
+    flex-shrink: 0;
+  }
+
+  .logo-zone { display: flex; align-items: center; gap: 1rem; }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem;
+    letter-spacing: 0.1em;
+    color: var(--blanc);
+    line-height: 1;
+  }
+  .logo .sub {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .stars-deco {
+    color: var(--jaune);
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    opacity: 0.9;
+  }
+
+  .btn-dashboard {
+    background: var(--rouge);
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-dashboard:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* Bande rouge horizontale style drapeau */
+  .flag-band {
+    background: var(--rouge);
+    height: 3px;
+    width: 100%;
+  }
+
+  .hero {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--jaune);
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    letter-spacing: 0.05em;
+    line-height: 1.05;
+    color: var(--blanc);
+  }
+  .hero h1 em {
+    color: var(--jaune);
+    font-style: normal;
+  }
+  .hero-stars { font-size: 1.1rem; margin-top: 0.75rem; letter-spacing: 0.3em; color: var(--jaune); opacity: 0.7; }
+
+  /* Séparateur style bandes drapeau */
+  .sep {
+    display: flex;
+    height: 8px;
+    margin: 0.25rem 2rem 1.5rem;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .sep span { flex: 1; }
+  .sep span:nth-child(1) { background: var(--bleu2); }
+  .sep span:nth-child(2) { background: var(--blanc); flex: 0.25; }
+  .sep span:nth-child(3) { background: var(--rouge); flex: 0.3; }
+  .sep span:nth-child(4) { background: var(--blanc); flex: 0.25; }
+  .sep span:nth-child(5) { background: var(--bleu2); }
+
+  .stands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    padding: 0 1.5rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .stand-card {
+    background: var(--gris);
+    border: 2px solid var(--gris2);
+    border-radius: 14px;
+    padding: 1.75rem 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.15s, background 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stand-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, var(--bleu2), var(--rouge));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .stand-card:hover {
+    border-color: var(--bleu3);
+    background: var(--gris2);
+    transform: translateY(-3px);
+  }
+  .stand-card:hover::before { opacity: 1; }
+
+  .stand-icon { font-size: 2.2rem; margin-bottom: 0.2rem; }
+  .stand-nom {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    color: var(--blanc);
+  }
+  .stand-desc { font-size: 0.8rem; color: #5971a0; }
+  .stand-arrow {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--bleu3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    border-top: 1px solid var(--gris2);
+    flex-wrap: wrap;
+  }
+  footer a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.2s;
+  }
+  footer a:hover { color: var(--jaune); }
+
+  .accvs-tag {
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.7rem;
+    color: #fff;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="flag-stripe"></div>
+
+<header>
+  <div class="logo-zone">
+    <div class="flag-icon">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="logo">
+      ACCVS
+      <span class="sub">Association Cap Vert Valais</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <div class="stars-deco">★ ★ ★ ★ ★</div>
+    <a href="/dashboard" class="btn-dashboard">📊 Dashboard</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">⚽ Tournoi de football</div>
+  <h1>Choisir <em>votre stand</em></h1>
+  <div class="hero-stars">★ ★ ★ ★ ★ ★ ★ ★ ★ ★</div>
+</div>
+
+<div class="sep"><span></span><span></span><span></span><span></span><span></span></div>
+
+<div class="stands-grid">
+  {% set icons = ['🍺', '🥤', '🍺', '🌭', '🍫'] %}
+  {% for stand in stands %}
+  <a class="stand-card" href="/caisse/{{ stand.id }}">
+    <div class="stand-icon">{{ icons[loop.index0 % icons|length] }}</div>
+    <div class="stand-nom">{{ stand.nom }}</div>
+    <div class="stand-desc">{{ stand.description or 'Point de vente' }}</div>
+    <div class="stand-arrow">→ Ouvrir la caisse</div>
+  </a>
+  {% endfor %}
+</div>
+
+<footer>
+  <a href="/admin">⚙️ Administration</a>
+  <a href="/api/export/csv">⬇️ Export CSV</a>
+</footer>
+<div class="accvs-tag">ACCVS — Association Cap Vert Valais</div>
+
+</body>
+</html>

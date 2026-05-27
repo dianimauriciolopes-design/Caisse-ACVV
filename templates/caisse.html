@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Caisse ACCVS — {{ stand.nom }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bleu:  #003893;
+    --bleu2: #0047b8;
+    --bleu3: #1a5fd4;
+    --rouge: #cf2027;
+    --jaune: #f7d000;
+    --blanc: #ffffff;
+    --noir:  #0a0c14;
+    --gris:  #111827;
+    --gris2: #1e2433;
+    --gris3: #2d3447;
+    --twint: #00b0ea;
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    display: flex; flex-direction: column; height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bleu);
+    padding: 0.7rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid var(--rouge);
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .btn-back {
+    background: rgba(255,255,255,0.15);
+    border: none; border-radius: 8px;
+    color: var(--blanc); font-size: 1.1rem;
+    width: 36px; height: 36px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stand-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 0.06em;
+  }
+  .stand-title small {
+    display: block; font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem; opacity: 0.6; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .header-right { display:flex; align-items:center; gap:1rem; }
+  .stars-sm { color: var(--jaune); font-size: 0.65rem; letter-spacing: 0.2em; }
+  .header-total .label { font-size: 0.65rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; text-align:right; }
+  .header-total .montant {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem; color: var(--jaune); letter-spacing: 0.03em;
+  }
+
+  /* LAYOUT */
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* ARTICLES */
+  .articles-panel {
+    flex: 1; overflow-y: auto; padding: 0.75rem;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 0.6rem; align-content: start;
+  }
+  .articles-panel::-webkit-scrollbar { width: 4px; }
+  .articles-panel::-webkit-scrollbar-thumb { background: var(--gris3); border-radius: 4px; }
+
+  .article-btn {
+    background: var(--gris);
+    border: 2px solid var(--gris2);
+    border-radius: 12px; padding: 0.85rem 0.6rem;
+    cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; gap: 0.3rem;
+    transition: border-color 0.15s, transform 0.1s, background 0.15s;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden;
+  }
+  .article-btn::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--bleu2), var(--rouge));
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .article-btn:active { transform: scale(0.94); background: var(--gris2); }
+  .article-btn:hover { border-color: var(--bleu3); }
+  .article-btn:hover::after { opacity: 1; }
+
+  .article-emoji { font-size: 1.7rem; }
+  .article-nom { font-size: 0.75rem; font-weight: 600; text-align: center; line-height: 1.2; color: var(--blanc); }
+  .article-prix { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; color: var(--jaune); letter-spacing: 0.05em; }
+
+  /* PANIER */
+  .panier-panel {
+    width: 290px; background: var(--gris);
+    border-left: 2px solid var(--gris2);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .panier-header {
+    padding: 0.7rem 1rem;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--gris2);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--gris2);
+  }
+  .panier-count {
+    background: var(--rouge); color: white;
+    font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 700;
+    padding: 0.2rem 0.5rem; border-radius: 20px;
+  }
+  .panier-items { flex: 1; overflow-y: auto; padding: 0.5rem; }
+  .panier-items::-webkit-scrollbar { width: 3px; }
+  .panier-items::-webkit-scrollbar-thumb { background: var(--gris3); }
+
+  .panier-vide { text-align: center; color: #2a3550; padding: 2rem 1rem; font-size: 0.82rem; }
+  .panier-vide .icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+
+  .panier-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem; border-radius: 8px;
+    border-bottom: 1px solid var(--gris2); font-size: 0.8rem;
+  }
+  .panier-item:last-child { border-bottom: none; }
+  .panier-item-info { flex: 1; min-width: 0; }
+  .panier-item-nom { font-weight: 600; }
+  .panier-item-prix { font-size: 0.72rem; color: #5a6a8a; }
+  .panier-item-controls { display: flex; align-items: center; gap: 0.3rem; }
+  .qty-btn {
+    background: var(--gris2); border: none; border-radius: 6px;
+    color: var(--blanc); width: 25px; height: 25px; cursor: pointer;
+    font-size: 0.85rem; display: flex; align-items: center; justify-content: center;
+  }
+  .qty-btn.remove { color: var(--rouge); }
+  .qty-num { font-weight: 700; font-size: 0.88rem; min-width: 18px; text-align: center; }
+
+  /* FOOTER PANIER */
+  .panier-footer { padding: 0.75rem; border-top: 2px solid var(--gris2); }
+  .total-ligne { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem; }
+  .total-label { font-size: 0.82rem; color: #5a6a8a; }
+  .total-montant { font-family: 'Bebas Neue', sans-serif; font-size: 2.1rem; letter-spacing: 0.03em; }
+  .total-montant span { font-size: 0.95rem; opacity: 0.55; margin-left: 2px; }
+
+  .paiement-btns { display: flex; flex-direction: column; gap: 0.5rem; }
+  .btn-pay {
+    padding: 0.85rem; border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    transition: transform 0.1s, opacity 0.15s; letter-spacing: 0.03em;
+  }
+  .btn-pay:active { transform: scale(0.97); }
+  .btn-pay:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-cash { background: var(--bleu2); color: white; }
+  .btn-twint { background: var(--twint); color: white; }
+  .btn-vider {
+    background: transparent; color: var(--rouge);
+    border: 1px solid var(--rouge); padding: 0.5rem; border-radius: 8px;
+    font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+
+  /* MODALES */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(5,8,20,0.92);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--gris); border: 2px solid var(--gris3);
+    border-radius: 18px; padding: 2rem; max-width: 370px; width: 90%;
+    transform: translateY(20px); transition: transform 0.2s; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .modal::before {
+    content: ''; position: absolute; top:0; left:0; right:0; height:4px;
+    background: linear-gradient(to right, var(--bleu2), var(--rouge), var(--jaune));
+  }
+  .modal-overlay.active .modal { transform: translateY(0); }
+
+  .modal h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  .modal-montant { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; color: var(--jaune); letter-spacing: 0.03em; line-height: 1; margin: 0.4rem 0; }
+  .modal-sub { color: #5a6a8a; font-size: 0.82rem; margin-bottom: 1.25rem; }
+  .modal-btns { display: flex; flex-direction: column; gap: 0.6rem; }
+  .modal-btns .btn-pay { width: 100%; }
+  .btn-annuler-modal {
+    background: transparent; border: 1px solid var(--gris3); color: #5a6a8a;
+    padding: 0.6rem; border-radius: 8px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  }
+
+  /* TWINT */
+  .twint-qr-zone { background: white; border-radius: 14px; padding: 1rem; display: inline-block; margin: 0.6rem 0; }
+  .twint-qr-zone img { width: 170px; height: 170px; display: block; }
+  .twint-instructions { font-size: 0.82rem; color: #5a6a8a; margin-bottom: 1rem; line-height: 1.5; }
+  .twint-instructions strong { color: var(--twint); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bleu2); color: white;
+    padding: 0.7rem 1.5rem; border-radius: 30px;
+    font-weight: 600; font-size: 0.88rem; z-index: 200;
+    transition: transform 0.3s ease; white-space: nowrap;
+    border: 2px solid var(--jaune);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--rouge); border-color: var(--rouge); }
+
+  /* Accvs watermark */
+  .accvs-watermark {
+    position: absolute; bottom: 8px; right: 10px;
+    font-size: 0.6rem; color: #1a2340; letter-spacing: 0.1em; text-transform: uppercase;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="flag-top"></div>
+
+<div class="header">
+  <div class="header-left">
+    <button class="btn-back" onclick="window.location='/'">←</button>
+    <div class="stand-title">
+      {{ stand.nom }}
+      <small>ACCVS · Caisse active</small>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="stars-sm">★ ★ ★ ★ ★</div>
+    <div class="header-total">
+      <div class="label">Total panier</div>
+      <div class="montant" id="header-total">0.00 CHF</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- ARTICLES -->
+  <div class="articles-panel">
+    {% for article in articles %}
+    <button class="article-btn" onclick="ajouterArticle({{ article.id }}, '{{ article.nom|e }}', {{ article.prix }}, '{{ article.emoji }}')">
+      <span class="article-emoji">{{ article.emoji }}</span>
+      <span class="article-nom">{{ article.nom }}</span>
+      <span class="article-prix">{{ "%.2f"|format(article.prix) }} CHF</span>
+    </button>
+    {% endfor %}
+    <button class="article-btn" onclick="ouvrirMontantLibre()" style="border-style:dashed; border-color:var(--gris3)">
+      <span class="article-emoji">✏️</span>
+      <span class="article-nom">Montant libre</span>
+      <span class="article-prix" style="color:#2a3550">Saisir</span>
+    </button>
+  </div>
+
+  <!-- PANIER -->
+  <div class="panier-panel">
+    <div class="panier-header">
+      <span>🧺 Panier</span>
+      <span class="panier-count" id="panier-count">0</span>
+    </div>
+    <div class="panier-items" id="panier-items">
+      <div class="panier-vide"><span class="icon">🛒</span>Ajoute des articles</div>
+    </div>
+    <div class="panier-footer">
+      <div class="total-ligne">
+        <span class="total-label">Total</span>
+        <div class="total-montant" id="total-montant">0.00 <span>CHF</span></div>
+      </div>
+      <div class="paiement-btns">
+        <button class="btn-pay btn-cash" id="btn-cash" onclick="ouvrirModalPaiement('cash')" disabled>💵 Payer en cash</button>
+        <button class="btn-pay btn-twint" id="btn-twint" onclick="ouvrirModalPaiement('twint')" disabled>📱 Payer par TWINT</button>
+        <button class="btn-vider" onclick="viderPanier()">🗑 Vider le panier</button>
+      </div>
+    </div>
+    <div class="accvs-watermark">🇨🇻 ACCVS</div>
+  </div>
+</div>
+
+<!-- MODALE CASH -->
+<div class="modal-overlay" id="modal-cash">
+  <div class="modal">
+    <h2>💵 Paiement Cash</h2>
+    <div class="modal-montant" id="cash-montant-affiché">0.00</div>
+    <div class="modal-sub">CHF à encaisser</div>
+    <div class="modal-btns">
+      <button class="btn-pay btn-cash" onclick="confirmerPaiement('cash')">✅ Paiement reçu</button>
+      <button class="btn-annuler-modal" onclick="fermerModales()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE TWINT -->
+<div class="modal-overlay" id="modal-twint">
+  <div class="modal">
+    <h2 style="color:var(--twint)">📱 Paiement TWINT</h2>
+    <div class="modal-montant" id="twint-montant-affiché">0.00</div>
+    <div class="modal-sub">CHF — Montre ce QR au client</div>
+    <div class="twint-qr-zone">
+      <img id="twint-qr-img" src="" alt="QR TWINT">
+    </div>
+    <p class="twint-instructions">Le client scanne avec <strong>TWINT</strong><br>et entre le montant ci-dessus.</p>
+    <div class="modal-btns">
+      <button class="btn-pay btn-twint" onclick="confirmerPaiement('twint')">✅ Paiement confirmé</button>
+      <button class="btn-annuler-modal" onclick="fermerModales()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE MONTANT LIBRE -->
+<div class="modal-overlay" id="modal-libre">
+  <div class="modal">
+    <h2>✏️ Montant libre</h2>
+    <input type="number" id="input-montant-libre" step="0.50" min="0.50" placeholder="0.00"
+      style="width:100%;background:var(--gris2);border:2px solid var(--gris3);border-radius:10px;color:var(--blanc);font-size:1.5rem;padding:.75rem;text-align:center;margin:1rem 0;font-family:'Bebas Neue',sans-serif;letter-spacing:.05em">
+    <input type="text" id="input-nom-libre" placeholder="Description (ex: Entrée, Don…)"
+      style="width:100%;background:var(--gris2);border:2px solid var(--gris3);border-radius:10px;color:var(--blanc);font-size:.88rem;padding:.6rem .75rem;margin-bottom:1rem;font-family:'DM Sans',sans-serif">
+    <div class="modal-btns">
+      <button class="btn-pay" onclick="validerMontantLibre()" style="background:var(--gris3);color:var(--blanc)">Ajouter au panier</button>
+      <button class="btn-annuler-modal" onclick="fermerModales()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STAND_ID = {{ stand.id }};
+const TWINT_URL = "https://pay.twint.ch";
+let panier = [];
+
+function ajouterArticle(id, nom, prix, emoji) {
+  const ex = panier.find(i => i.id === id);
+  if (ex) ex.qty++;
+  else panier.push({ id, nom, prix: parseFloat(prix), emoji, qty: 1 });
+  renderPanier();
+  const btn = event.currentTarget;
+  btn.style.borderColor = 'var(--jaune)';
+  setTimeout(() => btn.style.borderColor = '', 300);
+}
+
+function modifierQty(id, d) {
+  const item = panier.find(i => i.id === id);
+  if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) panier = panier.filter(i => i.id !== id);
+  renderPanier();
+}
+
+function viderPanier() { panier = []; renderPanier(); }
+function getTotal() { return panier.reduce((s, i) => s + i.prix * i.qty, 0); }
+
+function renderPanier() {
+  const total = getTotal();
+  const count = panier.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('panier-count').textContent = count;
+  document.getElementById('header-total').textContent = total.toFixed(2) + ' CHF';
+  document.getElementById('total-montant').innerHTML = total.toFixed(2) + ' <span>CHF</span>';
+  const has = panier.length > 0;
+  document.getElementById('btn-cash').disabled = !has;
+  document.getElementById('btn-twint').disabled = !has;
+  const c = document.getElementById('panier-items');
+  if (!has) { c.innerHTML = '<div class="panier-vide"><span class="icon">🛒</span>Ajoute des articles</div>'; return; }
+  c.innerHTML = panier.map(item => `
+    <div class="panier-item">
+      <span style="font-size:1.1rem">${item.emoji}</span>
+      <div class="panier-item-info">
+        <div class="panier-item-nom">${item.nom}</div>
+        <div class="panier-item-prix">${(item.prix * item.qty).toFixed(2)} CHF</div>
+      </div>
+      <div class="panier-item-controls">
+        <button class="qty-btn remove" onclick="modifierQty(${item.id}, -1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="modifierQty(${item.id}, 1)">+</button>
+      </div>
+    </div>`).join('');
+}
+
+function ouvrirModalPaiement(mode) {
+  const t = getTotal();
+  if (mode === 'cash') {
+    document.getElementById('cash-montant-affiché').textContent = t.toFixed(2);
+    document.getElementById('modal-cash').classList.add('active');
+  } else {
+    document.getElementById('twint-montant-affiché').textContent = t.toFixed(2);
+    document.getElementById('twint-qr-img').src = `/api/qr-image?url=${encodeURIComponent(TWINT_URL)}&t=${Date.now()}`;
+    document.getElementById('modal-twint').classList.add('active');
+  }
+}
+
+function fermerModales() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+function ouvrirMontantLibre() {
+  document.getElementById('input-montant-libre').value = '';
+  document.getElementById('input-nom-libre').value = '';
+  document.getElementById('modal-libre').classList.add('active');
+  setTimeout(() => document.getElementById('input-montant-libre').focus(), 300);
+}
+
+function validerMontantLibre() {
+  const m = parseFloat(document.getElementById('input-montant-libre').value);
+  const n = document.getElementById('input-nom-libre').value || 'Montant libre';
+  if (!m || m <= 0) { afficherToast('Montant invalide', true); return; }
+  panier.push({ id: 'libre_'+Date.now(), nom: n, prix: m, emoji: '✏️', qty: 1 });
+  renderPanier(); fermerModales();
+}
+
+async function confirmerPaiement(mode) {
+  const total = getTotal();
+  const detail = panier.map(i => ({ nom: i.nom, qty: i.qty, prix: i.prix, emoji: i.emoji }));
+  try {
+    const res = await fetch('/api/transaction', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ stand_id: STAND_ID, montant: total, mode_paiement: mode, articles: detail })
+    });
+    const data = await res.json();
+    if (data.success) { fermerModales(); viderPanier(); afficherToast(mode === 'cash' ? '✅ Cash encaissé !' : '✅ TWINT confirmé !'); }
+    else afficherToast('Erreur : ' + (data.erreur||'inconnue'), true);
+  } catch(e) { afficherToast('Erreur réseau', true); }
+}
+
+function afficherToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast'+(err?' error':'');
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) fermerModales(); }));
+</script>
+</body>
+</html>

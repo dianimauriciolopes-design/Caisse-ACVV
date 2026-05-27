@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACCVS — Dashboard Tournoi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bleu:#003893;--bleu2:#0047b8;--bleu3:#1a5fd4;
+    --rouge:#cf2027;--jaune:#f7d000;--blanc:#ffffff;
+    --noir:#0a0c14;--gris:#111827;--gris2:#1e2433;--gris3:#2d3447;
+    --twint:#00b0ea;--cash:#0047b8;
+  }
+  body{background:var(--noir);color:var(--blanc);font-family:'DM Sans',sans-serif;min-height:100vh}
+  ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--gris3);border-radius:4px}
+
+  header{
+    background:var(--bleu);border-bottom:3px solid var(--rouge);
+    padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:10;
+  }
+  .logo-zone{display:flex;align-items:center;gap:.75rem}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.07em}
+  .logo .sub{display:block;font-family:'DM Sans',sans-serif;font-size:.6rem;opacity:.5;letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+  .header-right{display:flex;align-items:center;gap:.75rem}
+  .stars{color:var(--jaune);font-size:.7rem;letter-spacing:.2em}
+
+  .btn-action{
+    background:var(--gris2);border:1px solid var(--gris3);border-radius:8px;
+    color:var(--blanc);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;
+    padding:.45rem .9rem;cursor:pointer;text-decoration:none;transition:background .15s;
+  }
+  .btn-action:hover{background:var(--gris3)}
+  .btn-export{background:var(--rouge);border-color:var(--rouge);color:white}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;padding:1.25rem 1.5rem}
+  .kpi{
+    background:var(--gris);border:2px solid var(--gris2);border-radius:14px;
+    padding:1.2rem 1.4rem;position:relative;overflow:hidden;
+  }
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .kpi.total::before{background:linear-gradient(to right,var(--jaune),var(--rouge))}
+  .kpi.cash::before{background:var(--bleu2)}
+  .kpi.twint::before{background:var(--twint)}
+  .kpi.nb::before{background:linear-gradient(to right,var(--bleu2),var(--rouge))}
+  .kpi-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:#5971a0;margin-bottom:.35rem}
+  .kpi-value{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;letter-spacing:.03em;line-height:1}
+  .kpi.total .kpi-value{color:var(--jaune)}
+  .kpi.cash  .kpi-value{color:var(--bleu3)}
+  .kpi.twint .kpi-value{color:var(--twint)}
+  .kpi.nb    .kpi-value{color:var(--blanc)}
+  .kpi-unit{font-size:.9rem;opacity:.4;margin-left:2px}
+
+  /* Body */
+  .body-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:1rem;padding:0 1.5rem 2rem}
+  @media(max-width:800px){.body-grid{grid-template-columns:1fr}}
+
+  /* Section */
+  .section{background:var(--gris);border:2px solid var(--gris2);border-radius:14px;overflow:hidden}
+  .section-header{
+    padding:.85rem 1.2rem;border-bottom:1px solid var(--gris2);
+    font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.06em;
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--gris2);
+  }
+  .section-header small{font-family:'DM Sans',sans-serif;font-size:.7rem;color:#3a4a6a;font-weight:400;letter-spacing:0}
+
+  /* Stands */
+  .stand-row{display:grid;grid-template-columns:1fr 75px 75px 80px;gap:.4rem;padding:.65rem 1.2rem;border-bottom:1px solid var(--gris2);align-items:center;font-size:.82rem;transition:background .15s}
+  .stand-row:last-child{border-bottom:none}
+  .stand-row:hover{background:var(--gris2)}
+  .stand-row.header-row{color:#5971a0;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
+  .stand-row.header-row:hover{background:transparent}
+  .chip{font-size:.7rem;font-weight:700;padding:.18rem .45rem;border-radius:5px}
+  .chip.cash{background:rgba(0,71,184,.2);color:var(--bleu3)}
+  .chip.twint{background:rgba(0,176,234,.15);color:var(--twint)}
+  .chip.total{background:rgba(247,208,0,.12);color:var(--jaune)}
+
+  /* Graphe */
+  .chart-zone{padding:1.2rem}
+  .bar-chart{display:flex;align-items:flex-end;gap:5px;height:110px}
+  .bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+  .bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .4s ease;position:relative;
+    background:linear-gradient(to top,var(--rouge),var(--bleu2))}
+  .bar:hover::after{content:attr(data-val);position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:var(--gris3);color:var(--blanc);font-size:.66rem;padding:.15rem .35rem;border-radius:4px;white-space:nowrap}
+  .bar-label{font-size:.65rem;color:#3a4a6a}
+
+  /* Transactions */
+  .tx-list{max-height:430px;overflow-y:auto}
+  .tx-item{display:flex;align-items:center;gap:.7rem;padding:.65rem 1.2rem;border-bottom:1px solid var(--gris2);font-size:.8rem;transition:background .15s}
+  .tx-item:last-child{border-bottom:none}
+  .tx-item:hover{background:var(--gris2)}
+  .tx-mode-badge{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+  .tx-mode-badge.cash{background:rgba(0,71,184,.2)}
+  .tx-mode-badge.twint{background:rgba(0,176,234,.15)}
+  .tx-info{flex:1;min-width:0}
+  .tx-stand{font-weight:600}
+  .tx-heure{color:#3a4a6a;font-size:.7rem}
+  .tx-montant{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.03em;white-space:nowrap}
+  .tx-annuler{background:transparent;border:1px solid #2d3447;border-radius:6px;color:var(--rouge);font-size:.68rem;padding:.18rem .45rem;cursor:pointer;opacity:0;transition:opacity .15s}
+  .tx-item:hover .tx-annuler{opacity:1}
+  .tx-annule{opacity:.3;text-decoration:line-through}
+
+</style>
+</head>
+<body>
+
+<div class="flag-top"></div>
+
+<header>
+  <div class="logo-zone">
+    <div class="logo">
+      📊 ACCVS - Dashboard
+      <span class="sub">Association Cap Vert Valais</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="stars">★ ★ ★ ★ ★</div>
+    <a href="/api/export/csv" class="btn-action btn-export">⬇ Export CSV</a>
+    <a href="/" class="btn-action">← Caisses</a>
+  </div>
+</header>
+
+<div class="kpi-grid">
+  <div class="kpi total"><div class="kpi-label">💰 Total du jour</div><div class="kpi-value" id="kpi-total">–<span class="kpi-unit"> CHF</span></div></div>
+  <div class="kpi cash"><div class="kpi-label">💵 Cash</div><div class="kpi-value" id="kpi-cash">–<span class="kpi-unit"> CHF</span></div></div>
+  <div class="kpi twint"><div class="kpi-label">📱 TWINT</div><div class="kpi-value" id="kpi-twint">–<span class="kpi-unit"> CHF</span></div></div>
+  <div class="kpi nb"><div class="kpi-label">🧾 Transactions</div><div class="kpi-value" id="kpi-nb">–</div></div>
+</div>
+
+<div class="body-grid">
+  <div style="display:flex;flex-direction:column;gap:1rem">
+    <div class="section">
+      <div class="section-header">📍 Par stand <small>Aujourd'hui</small></div>
+      <div class="stand-row header-row"><div>Stand</div><div>Cash</div><div>TWINT</div><div>Total</div></div>
+      <div id="stands-table"></div>
+    </div>
+    <div class="section">
+      <div class="section-header">📈 CA par heure <small>🇨🇻 ACCVS</small></div>
+      <div class="chart-zone"><div class="bar-chart" id="bar-chart"></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">🧾 Dernières transactions <small id="tx-count">–</small></div>
+    <div class="tx-list" id="tx-list"></div>
+  </div>
+</div>
+<script>
+async function chargerStats() {
+  try {
+    const [sRes, tRes] = await Promise.all([fetch('/api/stats'), fetch('/api/transactions?filtre=aujourd_hui')]);
+    const stats = await sRes.json(), txs = await tRes.json();
+    renderKPIs(stats.global);
+    renderStands(stats.par_stand);
+    renderChart(stats.par_heure);
+    renderTransactions(txs);
+    document.getElementById('last-update').textContent = 'Màj ' + new Date().toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  } catch(e){console.error(e)}
+}
+
+function renderKPIs(g) {
+  document.getElementById('kpi-total').innerHTML = g.total.toFixed(2)+'<span class="kpi-unit"> CHF</span>';
+  document.getElementById('kpi-cash').innerHTML  = g.total_cash.toFixed(2)+'<span class="kpi-unit"> CHF</span>';
+  document.getElementById('kpi-twint').innerHTML = g.total_twint.toFixed(2)+'<span class="kpi-unit"> CHF</span>';
+  document.getElementById('kpi-nb').textContent  = g.nb_transactions;
+}
+
+function renderStands(stands) {
+  const el = document.getElementById('stands-table');
+  if(!stands.length){el.innerHTML='<div style="padding:1.2rem;color:#3a4a6a;font-size:.82rem">Aucune vente pour le moment</div>';return}
+  el.innerHTML = stands.map(s=>`
+    <div class="stand-row">
+      <div style="font-weight:600">${s.stand_nom}</div>
+      <div><span class="chip cash">${s.cash.toFixed(2)}</span></div>
+      <div><span class="chip twint">${s.twint.toFixed(2)}</span></div>
+      <div><span class="chip total">${s.total.toFixed(2)}</span></div>
+    </div>`).join('');
+}
+
+function renderChart(heures) {
+  const el = document.getElementById('bar-chart');
+  if(!heures.length){el.innerHTML='<div style="color:#3a4a6a;font-size:.78rem;margin:auto">Aucune donnée</div>';return}
+  const max = Math.max(...heures.map(h=>h.total),1);
+  el.innerHTML = heures.map(h=>`
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.max(4,(h.total/max)*100)}px" data-val="${h.total.toFixed(2)} CHF"></div>
+      <div class="bar-label">${h.heure}h</div>
+    </div>`).join('');
+}
+
+function renderTransactions(txs) {
+  const el = document.getElementById('tx-list');
+  document.getElementById('tx-count').textContent = txs.length+' transaction'+(txs.length>1?'s':'');
+  if(!txs.length){el.innerHTML='<div style="padding:2rem;color:#3a4a6a;text-align:center">Aucune transaction aujourd\'hui</div>';return}
+  el.innerHTML = txs.map(t=>`
+    <div class="tx-item ${t.statut==='annule'?'tx-annule':''}" id="tx-${t.id}">
+      <div class="tx-mode-badge ${t.mode_paiement}">${t.mode_paiement==='cash'?'💵':'📱'}</div>
+      <div class="tx-info">
+        <div class="tx-stand">${t.stand_nom}</div>
+        <div class="tx-heure">${fh(t.created_at)} · ${t.mode_paiement.toUpperCase()}${t.detail_articles.length?' · '+t.detail_articles.map(a=>(a.qty>1?a.qty+'× ':'')+a.nom).join(', '):''}</div>
+      </div>
+      <div class="tx-montant">${t.montant.toFixed(2)} <span style="font-size:.75rem;opacity:.4">CHF</span></div>
+      ${t.statut!=='annule'?`<button class="tx-annuler" onclick="annulerTx(${t.id})">Annuler</button>`:'<span style="font-size:.68rem;color:#3a4a6a">Annulée</span>'}
+    </div>`).join('');
+}
+
+function fh(dt){try{return new Date(dt.replace(' ','T')).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'})}catch{return dt}}
+
+async function annulerTx(id){
+  if(!confirm('Annuler cette transaction ?'))return;
+  await fetch(`/api/transaction/${id}/annuler`,{method:'POST'});
+  chargerStats();
+}
+
+chargerStats();
+setInterval(chargerStats,15000);
+</script>
+</body>
+</html>

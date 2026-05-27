@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Tournoi</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bleu:#003893;--bleu2:#0047b8; --bleu3:#1a5fd4;--jaune:#f7d000;--noir:#0f0f0f;--gris:#111827;--gris2:#1e2433;--gris3:#2d3447;--blanc:#ffffff;--rouge:#cf2027;--creme:#f4f1e8}
+  body{background:var(--noir);color:var(--blanc);font-family:'DM Sans',sans-serif;min-height:100vh}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gris3);border-radius:4px}
+
+  header{background:var(--bleu);border-bottom:3px solid var(--rouge);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em}
+  .logo span{color:var(--jaune)}
+  .btn-back{background:var(--gris3);border:none;border-radius:8px;color:var(--blanc);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;padding:.5rem 1rem;cursor:pointer;text-decoration:none}
+
+  .container{max-width:900px;margin:0 auto;padding:1.5rem}
+  h2{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.06em;margin-bottom:1rem;color:var(--jaune)}
+
+  .card{background:var(--gris);border:2px solid var(--gris2);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem}
+
+  .form-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem}
+  .form-row input,select{flex:1;min-width:120px;background:var(--gris2);border:2px solid var(--gris3);border-radius:8px;color:var(--blanc);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:.55rem .75rem}
+  .form-row input:focus{outline:none;border-color:var(--bleu2)}
+
+  .btn-add{background:var(--bleu2);border:none;border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;padding:.6rem 1.25rem;cursor:pointer}
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.75rem}
+  th{text-align:left;padding:.5rem .75rem;color:#555;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--gris2)}
+  td{padding:.6rem .75rem;border-bottom:1px solid var(--gris2);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--gris2)}
+  .btn-del{background:transparent;border:1px solid var(--rouge);border-radius:6px;color:var(--rouge);font-size:.72rem;padding:.2rem .5rem;cursor:pointer}
+  .prix-cell{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--jaune);letter-spacing:.03em}
+  .stand-badge{background:var(--gris3);font-size:.72rem;padding:.15rem .45rem;border-radius:5px;color:#aaa}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⚙️ Admin <span>Tournoi</span></div>
+  <a href="/" class="btn-back">← Accueil</a>
+</header>
+
+<div class="container">
+
+  <!-- STANDS -->
+  <h2>📍 Stands</h2>
+  <div class="card">
+    <div class="form-row">
+      <input type="text" id="stand-nom" placeholder="Nom du stand (ex: Bar VIP)">
+      <input type="text" id="stand-desc" placeholder="Description">
+      <button class="btn-add" onclick="ajouterStand()">+ Ajouter</button>
+    </div>
+    <table>
+      <tr><th>ID</th><th>Nom</th><th>Description</th></tr>
+      {% for s in stands %}
+      <tr><td>#{{ s.id }}</td><td>{{ s.nom }}</td><td style="color:#666">{{ s.description or '—' }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <!-- ARTICLES -->
+  <h2>🍺 Articles</h2>
+  <div class="card">
+    <div class="form-row">
+      <select id="art-stand">
+        {% for s in stands %}<option value="{{ s.id }}">{{ s.nom }}</option>{% endfor %}
+      </select>
+      <input type="text" id="art-emoji" placeholder="Emoji" style="max-width:70px">
+      <input type="text" id="art-nom" placeholder="Nom de l'article">
+      <input type="number" id="art-prix" placeholder="Prix CHF" step="0.50" min="0.50">
+      <button class="btn-add" onclick="ajouterArticle()">+ Ajouter</button>
+    </div>
+    <table>
+      <tr><th></th><th>Nom</th><th>Stand</th><th>Prix</th><th></th></tr>
+      {% for a in articles %}
+      {% if a.actif %}
+      <tr id="art-row-{{ a.id }}">
+        <td>{{ a.emoji }}</td>
+        <td>{{ a.nom }}</td>
+        <td><span class="stand-badge">{{ a.stand_nom }}</span></td>
+        <td class="prix-cell">{{ "%.2f"|format(a.prix) }} CHF</td>
+        <td><button class="btn-del" onclick="supprimerArticle({{ a.id }})">Supprimer</button></td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+
+</div>
+
+<script>
+function toast(msg){alert(msg)}
+
+async function ajouterStand(){
+  const nom=document.getElementById('stand-nom').value.trim();
+  if(!nom){toast('Nom requis');return}
+  const res=await fetch('/api/stand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom,description:document.getElementById('stand-desc').value})});
+  if((await res.json()).success){location.reload()}
+}
+
+async function ajouterArticle(){
+  const stand_id=document.getElementById('art-stand').value;
+  const nom=document.getElementById('art-nom').value.trim();
+  const prix=parseFloat(document.getElementById('art-prix').value);
+  const emoji=document.getElementById('art-emoji').value||'🍺';
+  if(!nom||!prix){toast('Nom et prix requis');return}
+  const res=await fetch('/api/article',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({stand_id,nom,prix,emoji})});
+  if((await res.json()).success){location.reload()}
+}
+
+async function supprimerArticle(id){
+  if(!confirm('Supprimer cet article ?'))return;
+  await fetch(`/api/article/${id}`,{method:'DELETE'});
+  const row=document.getElementById('art-row-'+id);
+  if(row)row.remove();
+}
+</script>
+</body>
+</html>
