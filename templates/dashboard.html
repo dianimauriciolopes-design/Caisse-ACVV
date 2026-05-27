@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACCVS — Dashboard Tournoi</title>
+<title>ACVV — Dashboard Tournoi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -59,6 +59,18 @@
   .body-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:1rem;padding:0 1.5rem 2rem}
   @media(max-width:800px){.body-grid{grid-template-columns:1fr}}
 
+  @media(max-width:720px){
+    header{flex-direction:column;align-items:flex-start;gap:1rem;padding:1rem;}
+    .header-right{width:100%;justify-content:space-between;flex-wrap:wrap;}
+    .btn-action{width:100%;max-width:100%;}
+    .kpi-grid{padding:1rem;}
+    .stand-row{grid-template-columns:1fr;gap:.5rem;padding:.75rem 1rem;}
+    .stand-row.header-row{display:none}
+    .stand-row>div{display:flex;justify-content:space-between;align-items:center;padding:.15rem 0}
+    .stand-row>div:first-child{font-weight:600}
+    .stand-row .chip{width:auto}
+  }
+
   /* Section */
   .section{background:var(--gris);border:2px solid var(--gris2);border-radius:14px;overflow:hidden}
   .section-header{
@@ -95,6 +107,11 @@
   .tx-item:last-child{border-bottom:none}
   .tx-item:hover{background:var(--gris2)}
   .tx-mode-badge{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+  @media(max-width:720px){
+    .tx-item{flex-direction:column;align-items:flex-start;}
+    .tx-montant{white-space:normal;}
+    .tx-annuler{align-self:flex-end;}
+  }
   .tx-mode-badge.cash{background:rgba(0,71,184,.2)}
   .tx-mode-badge.twint{background:rgba(0,176,234,.15)}
   .tx-info{flex:1;min-width:0}
@@ -114,7 +131,7 @@
 <header>
   <div class="logo-zone">
     <div class="logo">
-      📊 ACCVS - Dashboard
+      📊 ACVV - Dashboard
       <span class="sub">Association Cap Vert Valais</span>
     </div>
   </div>
@@ -140,7 +157,7 @@
       <div id="stands-table"></div>
     </div>
     <div class="section">
-      <div class="section-header">📈 CA par heure <small>🇨🇻 ACCVS</small></div>
+      <div class="section-header">📈 CA par heure <small>🇨🇻 ACVV</small></div>
       <div class="chart-zone"><div class="bar-chart" id="bar-chart"></div></div>
     </div>
   </div>

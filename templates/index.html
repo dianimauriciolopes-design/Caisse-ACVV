@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACCVS — Sélection Stand</title>
+<title>ACVV — Sélection Stand</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -208,13 +208,40 @@
   }
   footer a:hover { color: var(--jaune); }
 
-  .accvs-tag {
+  .acvv-tag {
     text-align: center;
     padding: 0.5rem;
     font-size: 0.7rem;
     color: #fff;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+      padding: 1rem;
+      text-align: center;
+    }
+    .logo-zone { justify-content: center; }
+    .btn-dashboard { width: 100%; max-width: 320px; }
+    .hero { padding: 1.8rem 1rem 1rem; }
+    .sep { margin: 0.5rem 1rem 1.25rem; }
+    .stands-grid { padding: 0 1rem 2rem; }
+    footer { padding: 1rem; }
+  }
+
+  @media (max-width: 520px) {
+    header { text-align: center; }
+    .header-right { width: 100%; justify-content: center; }
+    .btn-dashboard { max-width: 100%; }
+  }
+
+  @media (max-width: 520px) {
+    .hero h1 { font-size: 2.5rem; }
+    .stand-card { padding: 1.5rem 1rem; }
   }
 </style>
 </head>
@@ -228,7 +255,7 @@
       <span></span><span></span><span></span><span></span><span></span>
     </div>
     <div class="logo">
-      ACCVS
+      ACVV
       <span class="sub">Association Cap Vert Valais</span>
     </div>
   </div>
@@ -262,7 +289,7 @@
   <a href="/admin">⚙️ Administration</a>
   <a href="/api/export/csv">⬇️ Export CSV</a>
 </footer>
-<div class="accvs-tag">ACCVS — Association Cap Vert Valais</div>
+<div class="acvv-tag">ACVV — Association Cap Vert Valais</div>
 
 </body>
 </html>

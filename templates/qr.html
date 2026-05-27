@@ -23,9 +23,14 @@
   .montant { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; letter-spacing: 0.03em; line-height: 1; }
   .chf { font-size: 2rem; opacity: 0.7; }
   .qr-box { background: white; border-radius: 20px; padding: 1.25rem; display: inline-block; }
-  .qr-box img { width: 220px; height: 220px; display: block; }
-  .instruction { font-size: 1rem; opacity: 0.85; max-width: 280px; line-height: 1.5; }
+  .qr-box img { width: 220px; height: 220px; max-width: 90vw; display: block; }
+  .instruction { font-size: 1rem; opacity: 0.85; max-width: 280px; line-height: 1.5; margin: 0 auto; }
   .instruction strong { font-weight: 700; }
+  @media (max-width: 520px) {
+    .title { font-size: 1.6rem; }
+    .montant { font-size: 3rem; }
+    .instruction { max-width: 100%; font-size: 0.95rem; }
+  }
 </style>
 </head>
 <body>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Caisse ACCVS — {{ stand.nom }}</title>
+<title>Caisse ACVV — {{ stand.nom }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -22,12 +22,12 @@
     --twint: #00b0ea;
   }
 
-  html, body { height: 100%; overflow: hidden; }
+  html, body { height: 100%; overflow: auto; }
   body {
     background: var(--noir);
     color: var(--blanc);
     font-family: 'DM Sans', sans-serif;
-    display: flex; flex-direction: column; height: 100vh;
+    display: flex; flex-direction: column; min-height: 100vh;
   }
 
   /* HEADER */
@@ -64,7 +64,7 @@
   }
 
   /* LAYOUT */
-  .main { display: flex; flex: 1; overflow: hidden; }
+  .main { display: flex; flex: 1; min-height: 0; overflow: hidden; gap: 0.75rem; padding: 0.75rem; }
 
   /* ARTICLES */
   .articles-panel {
@@ -101,9 +101,10 @@
 
   /* PANIER */
   .panier-panel {
-    width: 290px; background: var(--gris);
+    width: 290px; min-width: 260px; background: var(--gris);
     border-left: 2px solid var(--gris2);
     display: flex; flex-direction: column; flex-shrink: 0;
+    min-height: 0;
   }
   .panier-header {
     padding: 0.7rem 1rem;
@@ -198,7 +199,7 @@
 
   /* TWINT */
   .twint-qr-zone { background: white; border-radius: 14px; padding: 1rem; display: inline-block; margin: 0.6rem 0; }
-  .twint-qr-zone img { width: 170px; height: 170px; display: block; }
+  .twint-qr-zone img { width: 170px; height: 170px; display: block; max-width: 100%; height: auto; }
   .twint-instructions { font-size: 0.82rem; color: #5a6a8a; margin-bottom: 1rem; line-height: 1.5; }
   .twint-instructions strong { color: var(--twint); }
 
@@ -215,11 +216,30 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--rouge); border-color: var(--rouge); }
 
-  /* Accvs watermark */
-  .accvs-watermark {
+  /* ACVV watermark */
+  .acvv-watermark {
     position: absolute; bottom: 8px; right: 10px;
     font-size: 0.6rem; color: #1a2340; letter-spacing: 0.1em; text-transform: uppercase;
     pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    .main { flex-direction: column; flex-wrap: wrap; overflow: visible; }
+    .articles-panel { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .panier-panel { width: 100%; border-left: none; border-top: 2px solid var(--gris2); order: 2; }
+    .header-right { width: 100%; justify-content: space-between; }
+    .header-total { text-align: right; }
+  }
+
+  @media (max-width: 640px) {
+    .header { flex-direction: column; align-items: stretch; gap: 0.85rem; padding: 0.85rem 0.9rem; }
+    .header-left, .header-right { width: 100%; }
+    .header-right { justify-content: space-between; flex-wrap: wrap; }
+    .header-total { text-align: right; width: auto; }
+    .article-btn { padding: 0.8rem; }
+    .total-montant { font-size: 1.8rem; }
+    .modal { max-width: 95%; padding: 1.25rem; }
+    .modal-montant { font-size: 2.3rem; }
   }
 </style>
 </head>
@@ -232,7 +252,7 @@
     <button class="btn-back" onclick="window.location='/'">←</button>
     <div class="stand-title">
       {{ stand.nom }}
-      <small>ACCVS · Caisse active</small>
+      <small>ACVV · Caisse active</small>
     </div>
   </div>
   <div class="header-right">
@@ -281,7 +301,7 @@
         <button class="btn-vider" onclick="viderPanier()">🗑 Vider le panier</button>
       </div>
     </div>
-    <div class="accvs-watermark">🇨🇻 ACCVS</div>
+    <div class="acvv-watermark">ACVV</div>
   </div>
 </div>
 

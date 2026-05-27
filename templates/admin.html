@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Tournoi</title>
+<title>ACVV — Administration</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bleu:#003893;--bleu2:#0047b8; --bleu3:#1a5fd4;--jaune:#f7d000;--noir:#0f0f0f;--gris:#111827;--gris2:#1e2433;--gris3:#2d3447;--blanc:#ffffff;--rouge:#cf2027;--creme:#f4f1e8}
+  :root{--bleu:#003893;--bleu2:#0047b8;--bleu3:#1a5fd4;--jaune:#f7d000;--noir:#0f0f0f;--gris:#111827;--gris2:#1e2433;--gris3:#2d3447;--blanc:#ffffff;--rouge:#cf2027;--creme:#f4f1e8}
   body{background:var(--noir);color:var(--blanc);font-family:'DM Sans',sans-serif;min-height:100vh}
   ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gris3);border-radius:4px}
 
@@ -21,10 +21,10 @@
 
   .card{background:var(--gris);border:2px solid var(--gris2);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem}
 
+  .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:1rem}
   .form-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem}
   .form-row input,select{flex:1;min-width:120px;background:var(--gris2);border:2px solid var(--gris3);border-radius:8px;color:var(--blanc);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:.55rem .75rem}
   .form-row input:focus{outline:none;border-color:var(--bleu2)}
-
   .btn-add{background:var(--bleu2);border:none;border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;padding:.6rem 1.25rem;cursor:pointer}
 
   table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.75rem}
@@ -35,11 +35,20 @@
   .btn-del{background:transparent;border:1px solid var(--rouge);border-radius:6px;color:var(--rouge);font-size:.72rem;padding:.2rem .5rem;cursor:pointer}
   .prix-cell{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--jaune);letter-spacing:.03em}
   .stand-badge{background:var(--gris3);font-size:.72rem;padding:.15rem .45rem;border-radius:5px;color:#aaa}
+
+  @media(max-width:760px){
+    header{flex-direction:column;align-items:flex-start;gap:1rem;}
+    .logo{font-size:1.35rem;}
+    .container{padding:1rem;}
+    .form-row{flex-direction:column;}
+    .form-row input,select,.btn-add{width:100%;}
+    table{font-size:.78rem;}
+  }
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">⚙️ Admin <span>Tournoi</span></div>
+  <div class="logo">⚙️ ACVV <span>Administration</span></div>
   <a href="/" class="btn-back">← Accueil</a>
 </header>
 
@@ -53,12 +62,14 @@
       <input type="text" id="stand-desc" placeholder="Description">
       <button class="btn-add" onclick="ajouterStand()">+ Ajouter</button>
     </div>
-    <table>
-      <tr><th>ID</th><th>Nom</th><th>Description</th></tr>
-      {% for s in stands %}
-      <tr><td>#{{ s.id }}</td><td>{{ s.nom }}</td><td style="color:#666">{{ s.description or '—' }}</td></tr>
-      {% endfor %}
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>ID</th><th>Nom</th><th>Description</th></tr>
+        {% for s in stands %}
+        <tr><td>#{{ s.id }}</td><td>{{ s.nom }}</td><td style="color:#666">{{ s.description or '—' }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
   </div>
 
   <!-- ARTICLES -->
@@ -73,20 +84,22 @@
       <input type="number" id="art-prix" placeholder="Prix CHF" step="0.50" min="0.50">
       <button class="btn-add" onclick="ajouterArticle()">+ Ajouter</button>
     </div>
-    <table>
-      <tr><th></th><th>Nom</th><th>Stand</th><th>Prix</th><th></th></tr>
-      {% for a in articles %}
-      {% if a.actif %}
-      <tr id="art-row-{{ a.id }}">
-        <td>{{ a.emoji }}</td>
-        <td>{{ a.nom }}</td>
-        <td><span class="stand-badge">{{ a.stand_nom }}</span></td>
-        <td class="prix-cell">{{ "%.2f"|format(a.prix) }} CHF</td>
-        <td><button class="btn-del" onclick="supprimerArticle({{ a.id }})">Supprimer</button></td>
-      </tr>
-      {% endif %}
-      {% endfor %}
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <tr><th></th><th>Nom</th><th>Stand</th><th>Prix</th><th></th></tr>
+        {% for a in articles %}
+        {% if a.actif %}
+        <tr id="art-row-{{ a.id }}">
+          <td>{{ a.emoji }}</td>
+          <td>{{ a.nom }}</td>
+          <td><span class="stand-badge">{{ a.stand_nom }}</span></td>
+          <td class="prix-cell">{{ "%.2f"|format(a.prix) }} CHF</td>
+          <td><button class="btn-del" onclick="supprimerArticle({{ a.id }})">Supprimer</button></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </table>
+    </div>
   </div>
 
 </div>
