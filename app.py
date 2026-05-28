@@ -6,7 +6,6 @@ import os
 import io
 import qrcode
 from datetime import datetime
-import psycopg2.extras
 
 app = Flask(__name__)
 

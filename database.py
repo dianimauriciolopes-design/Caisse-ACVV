@@ -1,5 +1,4 @@
 import os
-import psycopg2
 import sqlite3
 
 IS_POSTGRES = bool(os.getenv("DATABASE_URL"))
