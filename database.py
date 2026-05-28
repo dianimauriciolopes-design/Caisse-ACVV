@@ -1,9 +1,9 @@
 import os
 
-# ─────────────────────────────────────────────────
-# MODE RAILWAY (POSTGRESQL)
-# ─────────────────────────────────────────────────
-if os.getenv("DATABASE_URL"):
+IS_POSTGRES = bool(os.getenv("DATABASE_URL"))
+
+# ───────── POSTGRESQL ─────────
+if IS_POSTGRES:
     import psycopg2
     import psycopg2.extras
 
@@ -30,22 +30,21 @@ if os.getenv("DATABASE_URL"):
         c.execute("""
             CREATE TABLE IF NOT EXISTS articles (
                 id SERIAL PRIMARY KEY,
-                stand_id INTEGER NOT NULL,
-                nom TEXT NOT NULL,
-                prix REAL NOT NULL,
-                emoji TEXT DEFAULT '🍺',
-                actif INTEGER DEFAULT 1,
-                FOREIGN KEY (stand_id) REFERENCES stands(id)
+                stand_id INTEGER,
+                nom TEXT,
+                prix REAL,
+                emoji TEXT,
+                actif INTEGER DEFAULT 1
             )
         """)
 
         c.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
                 id SERIAL PRIMARY KEY,
-                stand_id INTEGER NOT NULL,
-                stand_nom TEXT NOT NULL,
-                montant REAL NOT NULL,
-                mode_paiement TEXT NOT NULL,
+                stand_id INTEGER,
+                stand_nom TEXT,
+                montant REAL,
+                mode_paiement TEXT,
                 statut TEXT DEFAULT 'confirme',
                 detail_articles TEXT,
                 note TEXT,
@@ -53,9 +52,9 @@ if os.getenv("DATABASE_URL"):
             )
         """)
 
-        # Données par défaut
+        # ✅ SAFE COUNT
         c.execute("SELECT COUNT(*) FROM stands")
-        count = c.fetchone()["count"]
+        count = c.fetchone()[0]
 
         if count == 0:
             stands_defaut = [
@@ -78,9 +77,11 @@ if os.getenv("DATABASE_URL"):
                 (1, "Eau 50cl", 1.50, "💧"),
                 (1, "Vin rouge", 4.00, "🍷"),
                 (1, "Vin blanc", 4.00, "🥂"),
-                (2, "Bière 50cl", 4.00, "🍺"),
-                (2, "Soft 33cl", 2.50, "🥤"),
-                (2, "Eau 50cl", 1.50, "💧"),
+                (4, "Saucisse-pain", 5.00, "🌭"),
+                (4, "Sandwich", 6.00, "🥪"),
+                (4, "Frites", 4.00, "🍟"),
+                (5, "Barre chocolat", 1.50, "🍫"),
+                (5, "Chips", 2.00, "🍿"),
             ]
 
             c.executemany(
@@ -90,11 +91,10 @@ if os.getenv("DATABASE_URL"):
 
         conn.commit()
         conn.close()
+
         print("✅ PostgreSQL initialisé")
 
-# ─────────────────────────────────────────────────
-# MODE LOCAL (SQLITE)
-# ─────────────────────────────────────────────────
+# ───────── SQLITE ─────────
 else:
     import sqlite3
 
@@ -113,7 +113,7 @@ else:
         c.execute("""
             CREATE TABLE IF NOT EXISTS stands (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nom TEXT NOT NULL,
+                nom TEXT,
                 description TEXT,
                 actif INTEGER DEFAULT 1
             )
@@ -122,10 +122,10 @@ else:
         c.execute("""
             CREATE TABLE IF NOT EXISTS articles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                stand_id INTEGER NOT NULL,
-                nom TEXT NOT NULL,
-                prix REAL NOT NULL,
-                emoji TEXT DEFAULT '🍺',
+                stand_id INTEGER,
+                nom TEXT,
+                prix REAL,
+                emoji TEXT,
                 actif INTEGER DEFAULT 1
             )
         """)
@@ -133,10 +133,10 @@ else:
         c.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                stand_id INTEGER NOT NULL,
-                stand_nom TEXT NOT NULL,
-                montant REAL NOT NULL,
-                mode_paiement TEXT NOT NULL,
+                stand_id INTEGER,
+                stand_nom TEXT,
+                montant REAL,
+                mode_paiement TEXT,
                 statut TEXT DEFAULT 'confirme',
                 detail_articles TEXT,
                 note TEXT,
@@ -144,7 +144,6 @@ else:
             )
         """)
 
-        # Données par défaut
         c.execute("SELECT COUNT(*) FROM stands")
         count = c.fetchone()[0]
 
@@ -169,9 +168,11 @@ else:
                 (1, "Eau 50cl", 1.50, "💧"),
                 (1, "Vin rouge", 4.00, "🍷"),
                 (1, "Vin blanc", 4.00, "🥂"),
-                (2, "Bière 50cl", 4.00, "🍺"),
-                (2, "Soft 33cl", 2.50, "🥤"),
-                (2, "Eau 50cl", 1.50, "💧"),
+                (4, "Saucisse-pain", 5.00, "🌭"),
+                (4, "Sandwich", 6.00, "🥪"),
+                (4, "Frites", 4.00, "🍟"),
+                (5, "Barre chocolat", 1.50, "🍫"),
+                (5, "Chips", 2.00, "🍿"),
             ]
 
             c.executemany(
@@ -181,4 +182,5 @@ else:
 
         conn.commit()
         conn.close()
+
         print("✅ SQLite initialisé")

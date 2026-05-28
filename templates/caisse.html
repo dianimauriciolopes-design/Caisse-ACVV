@@ -268,7 +268,7 @@
   <!-- ARTICLES -->
   <div class="articles-panel">
     {% for article in articles %}
-    <button class="article-btn" onclick="ajouterArticle({{ article.id }}, '{{ article.nom|e }}', {{ article.prix }}, '{{ article.emoji }}')">
+    <button class="article-btn" onclick="ajouterArticle({{ article.id }}, '{{ article.nom }}', {{ article.prix }}, '{{ article.emoji }}')">
       <span class="article-emoji">{{ article.emoji }}</span>
       <span class="article-nom">{{ article.nom }}</span>
       <span class="article-prix">{{ "%.2f"|format(article.prix) }} CHF</span>
@@ -425,13 +425,31 @@ function ouvrirMontantLibre() {
   setTimeout(() => document.getElementById('input-montant-libre').focus(), 300);
 }
 
+
 function validerMontantLibre() {
-  const m = parseFloat(document.getElementById('input-montant-libre').value);
-  const n = document.getElementById('input-nom-libre').value || 'Montant libre';
-  if (!m || m <= 0) { afficherToast('Montant invalide', true); return; }
-  panier.push({ id: 'libre_'+Date.now(), nom: n, prix: m, emoji: '✏️', qty: 1 });
-  renderPanier(); fermerModales();
+ const m = parseFloat(document.getElementById('input-montant-libre').value);
+
+ // ✅ FIX
+ const n = document.getElementById('input-nom-libre').value || 'Montant libre';
+
+ // ✅ FIX
+ if (!m || m <= 0) {
+   afficherToast('Montant invalide', true);
+   return;
+ }
+
+ panier.push({
+   id: 'libre_'+Date.now(),
+   nom: n,
+   prix: m,
+   emoji: '✏️',
+   qty: 1
+ });
+
+ renderPanier();
+ fermerModales();
 }
+
 
 async function confirmerPaiement(mode) {
   const total = getTotal();
@@ -443,7 +461,7 @@ async function confirmerPaiement(mode) {
     });
     const data = await res.json();
     if (data.success) { fermerModales(); viderPanier(); afficherToast(mode === 'cash' ? '✅ Cash encaissé !' : '✅ TWINT confirmé !'); }
-    else afficherToast('Erreur : ' + (data.erreur||'inconnue'), true);
+    else afficherToast('Erreur : ' + (data.erreur || 'inconnue'), true);
   } catch(e) { afficherToast('Erreur réseau', true); }
 }
 

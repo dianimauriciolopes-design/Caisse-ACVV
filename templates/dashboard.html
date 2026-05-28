@@ -34,7 +34,6 @@
     padding:.45rem .9rem;cursor:pointer;text-decoration:none;transition:background .15s;
   }
   .btn-action:hover{background:var(--gris3)}
-  .btn-export{background:var(--rouge);border-color:var(--rouge);color:white}
 
   /* KPI */
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;padding:1.25rem 1.5rem}
@@ -137,7 +136,6 @@
   </div>
   <div class="header-right">
     <div class="stars">★ ★ ★ ★ ★</div>
-    <a href="/api/export/csv" class="btn-action btn-export">⬇ Export CSV</a>
     <a href="/" class="btn-action">← Caisses</a>
   </div>
 </header>
@@ -157,7 +155,7 @@
       <div id="stands-table"></div>
     </div>
     <div class="section">
-      <div class="section-header">📈 CA par heure <small>🇨🇻 ACVV</small></div>
+      <div class="section-header">📈 CA par heure <small>ACVV</small></div>
       <div class="chart-zone"><div class="bar-chart" id="bar-chart"></div></div>
     </div>
   </div>

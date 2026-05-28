@@ -103,32 +103,49 @@
   </div>
 
 </div>
-
 <script>
-function toast(msg){alert(msg)}
+    function toast(msg){alert(msg)}
 
-async function ajouterStand(){
-  const nom=document.getElementById('stand-nom').value.trim();
-  if(!nom){toast('Nom requis');return}
-  const res=await fetch('/api/stand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom,description:document.getElementById('stand-desc').value})});
-  if((await res.json()).success){location.reload()}
-}
+    async function ajouterStand(){
+    const nom=document.getElementById('stand-nom').value.trim();
+    if(!nom){toast('Nom requis');return}
 
-async function ajouterArticle(){
-  const stand_id=document.getElementById('art-stand').value;
-  const nom=document.getElementById('art-nom').value.trim();
-  const prix=parseFloat(document.getElementById('art-prix').value);
-  const emoji=document.getElementById('art-emoji').value||'🍺';
-  if(!nom||!prix){toast('Nom et prix requis');return}
-  const res=await fetch('/api/article',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({stand_id,nom,prix,emoji})});
-  if((await res.json()).success){location.reload()}
-}
+    const res=await fetch('/api/stand',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        nom,
+        description:document.getElementById('stand-desc').value
+      })
+    });
 
-async function supprimerArticle(id){
-  if(!confirm('Supprimer cet article ?'))return;
-  await fetch(`/api/article/${id}`,{method:'DELETE'});
-  const row=document.getElementById('art-row-'+id);
-  if(row)row.remove();
+    if((await res.json()).success){location.reload()}
+    }
+
+    async function ajouterArticle(){
+    const stand_id=document.getElementById('art-stand').value;
+    const nom=document.getElementById('art-nom').value.trim();
+    const prix=parseFloat(document.getElementById('art-prix').value);
+
+    // ✅ FIX IMPORTANT
+    const emoji = document.getElementById('art-emoji').value || '🍺';
+
+    if(!nom || !prix){toast('Nom et prix requis');return}
+
+    const res=await fetch('/api/article',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({stand_id,nom,prix,emoji})
+    });
+
+    if((await res.json()).success){location.reload()}
+    }
+
+    async function supprimerArticle(id){
+    if(!confirm('Supprimer cet article ?'))return;
+    await fetch(`/api/article/${id}`,{method:'DELETE'});
+    const row=document.getElementById('art-row-'+id);
+    if(row)row.remove();
 }
 </script>
 </body>

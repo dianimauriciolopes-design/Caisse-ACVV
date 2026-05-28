@@ -37,7 +37,7 @@
   <div class="title">📱 {{ stand }}</div>
   <div class="montant">{{ montant or '?' }} <span class="chf">CHF</span></div>
   <div class="qr-box">
-    <img src="/api/qr-image" alt="QR TWINT">
+    <img src="/api/qr-image?url={{ montant }}" alt="QR TWINT">
   </div>
   <p class="instruction">
     Scanne avec <strong>TWINT</strong><br>
