@@ -1,187 +1,147 @@
 import os
 import sqlite3
+import psycopg2
+import psycopg2.extras
 
-IS_POSTGRES = bool(os.getenv("DATABASE_URL"))
+DB_PATH = "data.db"
 
-# ───────── POSTGRESQL ─────────
-if IS_POSTGRES:
-    import psycopg2
-    import psycopg2.extras
+IS_POSTGRES = "DATABASE_URL" in os.environ
 
-    def get_db():
-        return psycopg2.connect(
-            os.getenv("DATABASE_URL"),
+
+# ───────── CONNEXION DB ─────────
+
+def get_db():
+    if IS_POSTGRES:
+        conn = psycopg2.connect(
+            os.environ["DATABASE_URL"],
             cursor_factory=psycopg2.extras.RealDictCursor
         )
-
-    def init_db():
-        conn = get_db()
-        c = conn.cursor()
-
-        # Tables
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS stands (
-                id SERIAL PRIMARY KEY,
-                nom TEXT NOT NULL,
-                description TEXT,
-                actif INTEGER DEFAULT 1
-            )
-        """)
-
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS articles (
-                id SERIAL PRIMARY KEY,
-                stand_id INTEGER,
-                nom TEXT,
-                prix REAL,
-                emoji TEXT,
-                actif INTEGER DEFAULT 1
-            )
-        """)
-
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS transactions (
-                id SERIAL PRIMARY KEY,
-                stand_id INTEGER,
-                stand_nom TEXT,
-                montant REAL,
-                mode_paiement TEXT,
-                statut TEXT DEFAULT 'confirme',
-                detail_articles TEXT,
-                note TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-
-        # ✅ SAFE COUNT
-        c.execute("SELECT COUNT(*) FROM stands")
-        count = c.fetchone()[0]
-
-        if count == 0:
-            stands_defaut = [
-                ("Bar Principal", "Bières, softs, vins"),
-                ("Buvette Terrain A", "Boissons terrain A"),
-                ("Buvette Terrain B", "Boissons terrain B"),
-                ("Restauration", "Grillades, sandwichs"),
-                ("Confiserie", "Snacks, bonbons"),
-            ]
-
-            c.executemany(
-                "INSERT INTO stands (nom, description) VALUES (%s, %s)",
-                stands_defaut
-            )
-
-            articles_defaut = [
-                (1, "Bière 50cl", 4.00, "🍺"),
-                (1, "Bière 33cl", 3.00, "🍺"),
-                (1, "Soft 33cl", 2.50, "🥤"),
-                (1, "Eau 50cl", 1.50, "💧"),
-                (1, "Vin rouge", 4.00, "🍷"),
-                (1, "Vin blanc", 4.00, "🥂"),
-                (4, "Saucisse-pain", 5.00, "🌭"),
-                (4, "Sandwich", 6.00, "🥪"),
-                (4, "Frites", 4.00, "🍟"),
-                (5, "Barre chocolat", 1.50, "🍫"),
-                (5, "Chips", 2.00, "🍿"),
-            ]
-
-            c.executemany(
-                "INSERT INTO articles (stand_id, nom, prix, emoji) VALUES (%s, %s, %s, %s)",
-                articles_defaut
-            )
-
-        conn.commit()
-        conn.close()
-
-        print("✅ PostgreSQL initialisé")
-
-# ───────── SQLITE ─────────
-else:
-    import sqlite3
-
-    DB_PATH = os.path.join(os.path.dirname(__file__), "tournoi.db")
-
-    def get_db():
+        return conn
+    else:
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         return conn
 
-    def init_db():
-        conn = get_db()
-        c = conn.cursor()
 
-        # Tables
-        c.execute("""
+# ───────── INIT DB ─────────
+
+def init_db():
+    db = get_db()
+    cur = db.cursor()
+
+    # Création des tables
+    if IS_POSTGRES:
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS stands (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nom TEXT,
+                id SERIAL PRIMARY KEY,
+                nom TEXT NOT NULL,
                 description TEXT,
-                actif INTEGER DEFAULT 1
-            )
+                actif BOOLEAN DEFAULT TRUE
+            );
         """)
 
-        c.execute("""
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS articles (
+                id SERIAL PRIMARY KEY,
+                stand_id INTEGER REFERENCES stands(id),
+                nom TEXT NOT NULL,
+                prix REAL NOT NULL,
+                emoji TEXT,
+                actif BOOLEAN DEFAULT TRUE
+            );
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS transactions (
+                id SERIAL PRIMARY KEY,
+                stand_id INTEGER REFERENCES stands(id),
+                stand_nom TEXT,
+                montant REAL NOT NULL,
+                mode_paiement TEXT,
+                statut TEXT DEFAULT 'ok',
+                detail_articles TEXT,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        """)
+
+    else:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS stands (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nom TEXT NOT NULL,
+                description TEXT,
+                actif INTEGER DEFAULT 1
+            );
+        """)
+
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS articles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 stand_id INTEGER,
-                nom TEXT,
-                prix REAL,
+                nom TEXT NOT NULL,
+                prix REAL NOT NULL,
                 emoji TEXT,
                 actif INTEGER DEFAULT 1
-            )
+            );
         """)
 
-        c.execute("""
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 stand_id INTEGER,
                 stand_nom TEXT,
-                montant REAL,
+                montant REAL NOT NULL,
                 mode_paiement TEXT,
-                statut TEXT DEFAULT 'confirme',
+                statut TEXT DEFAULT 'ok',
                 detail_articles TEXT,
-                note TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
         """)
 
-        c.execute("SELECT COUNT(*) FROM stands")
-        count = c.fetchone()[0]
+    # Vérifier si la table stands est vide
+    cur.execute("SELECT COUNT(*) AS cnt FROM stands")
+    row = cur.fetchone()
 
-        if count == 0:
-            stands_defaut = [
-                ("Bar Principal", "Bières, softs, vins"),
-                ("Buvette Terrain A", "Boissons terrain A"),
-                ("Buvette Terrain B", "Boissons terrain B"),
-                ("Restauration", "Grillades, sandwichs"),
-                ("Confiserie", "Snacks, bonbons"),
-            ]
+    # Compatible PostgreSQL + SQLite
+    if row is None:
+        count = 0
+    elif isinstance(row, dict):
+        count = row["cnt"]
+    else:
+        count = row[0]
 
-            c.executemany(
-                "INSERT INTO stands (nom, description) VALUES (?, ?)",
-                stands_defaut
-            )
+    # Si vide → insérer données par défaut
+    if count == 0:
+        print("→ Initialisation des stands et articles par défaut")
 
-            articles_defaut = [
-                (1, "Bière 50cl", 4.00, "🍺"),
-                (1, "Bière 33cl", 3.00, "🍺"),
-                (1, "Soft 33cl", 2.50, "🥤"),
-                (1, "Eau 50cl", 1.50, "💧"),
-                (1, "Vin rouge", 4.00, "🍷"),
-                (1, "Vin blanc", 4.00, "🥂"),
-                (4, "Saucisse-pain", 5.00, "🌭"),
-                (4, "Sandwich", 6.00, "🥪"),
-                (4, "Frites", 4.00, "🍟"),
-                (5, "Barre chocolat", 1.50, "🍫"),
-                (5, "Chips", 2.00, "🍿"),
-            ]
+        cur.execute("INSERT INTO stands (nom, description) VALUES (%s, %s)" if IS_POSTGRES else
+                    "INSERT INTO stands (nom, description) VALUES (?, ?)",
+                    ("Bar", "Boissons"))
 
-            c.executemany(
+        cur.execute("INSERT INTO stands (nom, description) VALUES (%s, %s)" if IS_POSTGRES else
+                    "INSERT INTO stands (nom, description) VALUES (?, ?)",
+                    ("Nourriture", "Snacks"))
+
+        # Récupérer les IDs
+        cur.execute("SELECT id FROM stands ORDER BY id")
+        stands = cur.fetchall()
+
+        ids = [s["id"] if isinstance(s, dict) else s[0] for s in stands]
+
+        articles = [
+            (ids[0], "Bière", 5, "🍺"),
+            (ids[0], "Soda", 3, "🥤"),
+            (ids[1], "Hot-dog", 6, "🌭"),
+            (ids[1], "Chips", 2, "🍟"),
+        ]
+
+        for a in articles:
+            cur.execute(
+                "INSERT INTO articles (stand_id, nom, prix, emoji) VALUES (%s, %s, %s, %s)"
+                if IS_POSTGRES else
                 "INSERT INTO articles (stand_id, nom, prix, emoji) VALUES (?, ?, ?, ?)",
-                articles_defaut
+                a
             )
 
-        conn.commit()
-        conn.close()
-
-        print("✅ SQLite initialisé")
+    db.commit()
+    db.close()
