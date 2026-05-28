@@ -33,17 +33,6 @@
     display: flex; flex-direction: column; height: 100vh; overflow: hidden;
   }
 
-  /* ── BANDE DRAPEAU ── */
-  .flag-top {
-    height: 5px; flex-shrink: 0;
-    background: linear-gradient(to right,
-      var(--bleu) 0%,var(--bleu) 40%,
-      var(--blanc) 40%,var(--blanc) 41.5%,
-      var(--rouge) 41.5%,var(--rouge) 58.5%,
-      var(--blanc) 58.5%,var(--blanc) 60%,
-      var(--bleu) 60%,var(--bleu) 100%);
-  }
-
   /* ── HEADER ── */
   .header {
     background: var(--bleu);
@@ -262,26 +251,124 @@
 
   @media (max-width: 480px) {
     .header { flex-wrap: wrap; }
-    .header-right { width: 100%; justify-content: space-between; }
+    .header-right { width: 90%; justify-content: space-between; }
     .articles-panel { grid-template-columns: repeat(3, 1fr); }
     .article-emoji { font-size: 1.5rem; }
     .article-nom { font-size: 0.7rem; }
     .article-prix { font-size: 0.95rem; }
   }
+
+/* --- RESPONSIVE GLOBAL POUR PETITS TÉLÉPHONES --- */
+@media (max-width: 760px) {
+
+    /* HEADER */
+    .header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .header-left,
+    .header-right {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* TITRES */
+    .stand-title,
+    .page-title,
+    .admin-title,
+    .dashboard-title {
+        font-size: clamp(1rem, 4.5vw, 1.6rem);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stand-title small,
+    .page-sub,
+    .admin-sub,
+    .dashboard-sub {
+        font-size: clamp(0.55rem, 2.5vw, 0.75rem);
+        opacity: 0.7;
+    }
+
+    /* BOUTON RETOUR */
+    .btn-back {
+        width: clamp(28px, 8vw, 36px);
+        height: clamp(28px, 8vw, 36px);
+        font-size: clamp(1rem, 4vw, 1.3rem);
+    }
+
+    /* ÉTOILES */
+    .stars-sm,
+    .stars-deco {
+        font-size: clamp(0.5rem, 2.5vw, 0.8rem);
+        white-space: nowrap;
+    }
+
+    /* TOTAL HEADER */
+    .header-total .label {
+        font-size: clamp(0.5rem, 2.5vw, 0.75rem);
+    }
+
+    .header-total .montant {
+        font-size: clamp(1.2rem, 6vw, 1.9rem);
+        white-space: nowrap;
+    }
+
+    /* BOUTONS NAVIGATION */
+    .btn-dashboard,
+    .btn-admin,
+    .btn-nav {
+        font-size: clamp(0.55rem, 2.5vw, 0.75rem);
+        padding: 0.45rem 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* GRILLES (index, admin, dashboard) */
+    .stands-grid,
+    .admin-grid,
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.7rem;
+        padding: 0 1rem 2rem;
+    }
+
+    /* CARTES */
+    .stand-card,
+    .admin-card,
+    .dashboard-card {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    /* TABLEAUX */
+    table {
+        font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+  }
 </style>
 </head>
 <body>
 
-<div class="flag-top"></div>
 
 <div class="header">
   <div class="header-left">
     <button class="btn-back" onclick="window.location='/'">←</button>
     <div class="stand-title">
       {{ stand.nom }}
-      <small>🇨🇻 ACCVS · Caisse active</small>
+      <small>ACVV · Caisse active</small>
     </div>
   </div>
+
   <div class="header-right">
     <div class="stars-sm">★ ★ ★ ★ ★</div>
     <div class="header-total">
