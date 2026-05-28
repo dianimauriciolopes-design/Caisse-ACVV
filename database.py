@@ -1,11 +1,10 @@
-import sqlite3
 import os
+import psycopg2
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "tournoi.db")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 def init_db():
@@ -15,17 +14,17 @@ def init_db():
     # Table des stands
     c.execute("""
         CREATE TABLE IF NOT EXISTS stands (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             nom TEXT NOT NULL,
             description TEXT,
             actif INTEGER DEFAULT 1
         )
     """)
 
-    # Table des articles/produits
+    # Table des articles
     c.execute("""
         CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             stand_id INTEGER NOT NULL,
             nom TEXT NOT NULL,
             prix REAL NOT NULL,
@@ -38,22 +37,24 @@ def init_db():
     # Table des transactions
     c.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             stand_id INTEGER NOT NULL,
             stand_nom TEXT NOT NULL,
             montant REAL NOT NULL,
-            mode_paiement TEXT NOT NULL,  -- 'cash' ou 'twint'
-            statut TEXT DEFAULT 'confirme',  -- 'confirme', 'en_attente', 'annule'
-            detail_articles TEXT,  -- JSON string
+            mode_paiement TEXT NOT NULL,
+            statut TEXT DEFAULT 'confirme',
+            detail_articles TEXT,
             note TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (stand_id) REFERENCES stands(id)
         )
     """)
 
-    # Stands par défaut
+    # Vérifier si données déjà présentes
     c.execute("SELECT COUNT(*) FROM stands")
-    if c.fetchone()[0] == 0:
+    count = c.fetchone()[0]
+
+    if count == 0:
         stands_defaut = [
             ("Bar Principal", "Bières, softs, vins"),
             ("Buvette Terrain A", "Boissons terrain A"),
@@ -61,9 +62,12 @@ def init_db():
             ("Restauration", "Grillades, sandwichs"),
             ("Confiserie", "Snacks, bonbons"),
         ]
-        c.executemany("INSERT INTO stands (nom, description) VALUES (?, ?)", stands_defaut)
 
-        # Articles par défaut pour le Bar Principal (stand 1)
+        c.executemany(
+            "INSERT INTO stands (nom, description) VALUES (%s, %s)",
+            stands_defaut
+        )
+
         articles_defaut = [
             (1, "Bière 50cl", 4.00, "🍺"),
             (1, "Bière 33cl", 3.00, "🍺"),
@@ -74,20 +78,14 @@ def init_db():
             (2, "Bière 50cl", 4.00, "🍺"),
             (2, "Soft 33cl", 2.50, "🥤"),
             (2, "Eau 50cl", 1.50, "💧"),
-            (3, "Bière 50cl", 4.00, "🍺"),
-            (3, "Soft 33cl", 2.50, "🥤"),
-            (3, "Eau 50cl", 1.50, "💧"),
-            (4, "Saucisse-pain", 5.00, "🌭"),
-            (4, "Sandwich", 6.00, "🥪"),
-            (4, "Frites", 4.00, "🍟"),
-            (5, "Barre chocolat", 1.50, "🍫"),
-            (5, "Chips", 2.00, "🍿"),
         ]
+
         c.executemany(
-            "INSERT INTO articles (stand_id, nom, prix, emoji) VALUES (?, ?, ?, ?)",
+            "INSERT INTO articles (stand_id, nom, prix, emoji) VALUES (%s, %s, %s, %s)",
             articles_defaut
         )
 
     conn.commit()
     conn.close()
-    print("✅ Base de données initialisée.")
+
+    print("✅ Base PostgreSQL initialisée")
