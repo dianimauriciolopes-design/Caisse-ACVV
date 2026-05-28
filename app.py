@@ -22,7 +22,9 @@ def exec_query(cur, pg, sqlite, params=()):
 def index():
     db = get_db()
     cur = db.cursor()
-    cur.execute("SELECT * FROM stands WHERE actif = 1")
+    cur.execute("SELECT * FROM stands WHERE actif = TRUE" if IS_POSTGRES else
+            "SELECT * FROM stands WHERE actif = 1")
+
     stands = cur.fetchall()
     db.close()
     return render_template("index.html", stands=stands)
@@ -40,10 +42,11 @@ def caisse(stand_id):
     stand = cur.fetchone()
 
     exec_query(cur,
-        "SELECT * FROM articles WHERE stand_id = %s AND actif = 1",
+        "SELECT * FROM articles WHERE stand_id = %s AND actif = TRUE",
         "SELECT * FROM articles WHERE stand_id = ? AND actif = 1",
         (stand_id,)
     )
+
     articles = cur.fetchall()
 
     db.close()
@@ -208,7 +211,7 @@ def supprimer_article(a_id):
     cur = db.cursor()
 
     exec_query(cur,
-        "UPDATE articles SET actif = 0 WHERE id = %s",
+        "UPDATE articles SET actif = FALSE WHERE id = %s",
         "UPDATE articles SET actif = 0 WHERE id = ?",
         (a_id,)
     )
