@@ -7,7 +7,7 @@ import io
 import qrcode
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # ───────── HELPER SQL ─────────
 def exec_query(cur, pg, sqlite, params=()):
@@ -328,18 +328,11 @@ def stats():
         ]
     })
 
-# ───────── QR ─────────
+# ───────── PAGE TWINT (QR FIXE) ─────────
 
-@app.route("/api/qr-image")
-def qr():
-    url = request.args.get("url", "https://pay.twint.ch")
-
-    qr = qrcode.make(url)
-    buf = io.BytesIO()
-    qr.save(buf)
-    buf.seek(0)
-
-    return send_file(buf, mimetype="image/png")
+@app.route("/twint/<int:stand_id>/<montant>")
+def twint_page(stand_id, montant):
+    return render_template("twint.html", stand=stand_id, montant=montant)
 
 # ───────── RUN ─────────
 

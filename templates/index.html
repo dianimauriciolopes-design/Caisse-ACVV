@@ -143,18 +143,19 @@
   .stands-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
-    padding: 0 1.5rem 3rem;
+    gap: 2rem;
+    padding: 0 2rem 3rem;
     max-width: 1100px;
     margin: 0 auto;
     width: 100%;
   }
 
   .stand-card {
+    font-size: 1rem;
     background: var(--gris);
     border: 2px solid var(--gris2);
-    border-radius: 14px;
-    padding: 1.75rem 1.5rem;
+    border-radius: 18px;
+    padding: 2.2rem 1.8rem;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
@@ -181,14 +182,14 @@
   }
   .stand-card:hover::before { opacity: 1; }
 
-  .stand-icon { font-size: 2.2rem; margin-bottom: 0.2rem; }
+  .stand-icon { font-size: 3rem; margin-bottom: 0.2rem; }
   .stand-nom {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
+    font-size: 2rem;
     letter-spacing: 0.06em;
     color: var(--blanc);
   }
-  .stand-desc { font-size: 0.8rem; color: #5971a0; }
+  .stand-desc { font-size: 1rem; color: #5971a0; }
   .stand-arrow {
     margin-top: 1rem;
     font-size: 0.8rem;
@@ -199,6 +200,7 @@
   }
 
   footer {
+    margin-top: auto;
     text-align: center;
     padding: 1.5rem;
     display: flex;
@@ -297,7 +299,6 @@
     }
 
     /* GRILLES (index, admin, dashboard) */
-    .stands-grid,
     .admin-grid,
     .dashboard-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -306,7 +307,6 @@
     }
 
     /* CARTES */
-    .stand-card,
     .admin-card,
     .dashboard-card {
         padding: 1rem;
@@ -352,7 +352,7 @@
 <div class="sep"><span></span><span></span><span></span><span></span><span></span></div>
 
 <div class="stands-grid">
-  {% set icons = ['🍺', '🥤', '🍺', '🌭', '🍫'] %}
+  {% set icons = ['🥩', '🥤', '🍹'] %}
   {% for stand in stands %}
   <a class="stand-card" href="/caisse/{{ stand.id }}">
     <div class="stand-icon">{{ icons[loop.index0 % icons|length] }}</div>

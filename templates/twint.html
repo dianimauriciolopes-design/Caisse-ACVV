@@ -37,12 +37,42 @@
   <div class="title">📱 {{ stand }}</div>
   <div class="montant">{{ montant or '?' }} <span class="chf">CHF</span></div>
   <div class="qr-box">
-    <img src="../templates,static/qrcode.jpeg" alt="QR TWINT">
+    <img src="{{ url_for('static', filename='img/qrcode.jpg') }}" alt="QR TWINT">
   </div>
   <p class="instruction">
     Scanne avec <strong>TWINT</strong><br>
     et entre le montant<br>
     <strong>{{ montant or '?' }} CHF</strong>
   </p>
+  <a href="/" 
+   onclick="confirmerPaiementTwint()" 
+   style="margin-top:20px;display:inline-block;background:white;color:#00b0ea;padding:12px 20px;border-radius:12px;font-weight:600;text-decoration:none;font-size:1.2rem;">
+   ✅ Paiement reçu
+</a>
+<script>
+  async function confirmerPaiementTwint() {
+      const montant = {{ montant }};
+      const standId = {{ stand }};
+
+      const res = await fetch('/api/transaction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              stand_id: standId,
+              montant: montant,
+              mode_paiement: "twint",
+              articles: []  // pas de détails ici
+          })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+          window.location.href = "/caisse/" + standId;
+      } else {
+          alert("Erreur lors de l’enregistrement");
+      }
+  }
+</script>
 </body>
 </html>

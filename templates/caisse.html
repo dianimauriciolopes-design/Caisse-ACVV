@@ -520,14 +520,15 @@ function renderPanier() {
 
 function ouvrirModalPaiement(mode) {
   const t = getTotal();
+
   if (mode === 'cash') {
     document.getElementById('cash-montant-affiché').textContent = t.toFixed(2);
     document.getElementById('modal-cash').classList.add('active');
-  } else {
-    document.getElementById('twint-montant-affiché').textContent = t.toFixed(2);
-    document.getElementById('twint-qr-img').src = `/api/qr-image?url=${encodeURIComponent(TWINT_URL)}&t=${Date.now()}`;
-    document.getElementById('modal-twint').classList.add('active');
+    return;
   }
+
+  const standId = {{ stand.id }};
+  window.location.href = `/twint/${standId}/${t.toFixed(2)}`;
 }
 
 function fermerModales() {

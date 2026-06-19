@@ -115,16 +115,9 @@ def init_db():
 
         # ───────── STANDS (10 stands) ─────────
         stands_defaut = [
-            ("Bar Principal", "Bières, softs, vins"),
-            ("Buvette Terrain A", "Boissons terrain A"),
-            ("Buvette Terrain B", "Boissons terrain B"),
-            ("Restauration", "Grillades, sandwichs"),
-            ("Confiserie", "Snacks, bonbons"),
-            ("Café & Desserts", "Café, thé, pâtisseries"),
-            ("Cocktails", "Cocktails alcoolisés et sans alcool"),
-            ("Vins & Spiritueux", "Sélection de vins et alcools"),
-            ("Glaces", "Glaces et desserts froids"),
-            ("Produits Locaux", "Produits artisanaux de la région"),
+            ("À manger", "nourritures"),
+            ("Boissons", "Boissons basiques"),
+            ("Cocktails", "avec ou sans alcool, consigne 2chf"),
         ]
 
         cur.executemany(
@@ -140,62 +133,27 @@ def init_db():
 
         # ───────── ARTICLES (beaucoup plus variés) ─────────
         articles_defaut = [
-            # Bar Principal (1)
-            (ids[0], "Bière 50cl", 4.00, "🍺"),
-            (ids[0], "Bière 33cl", 3.00, "🍺"),
-            (ids[0], "Soft 33cl", 2.50, "🥤"),
-            (ids[0], "Eau 50cl", 1.50, "💧"),
-            (ids[0], "Vin rouge", 4.00, "🍷"),
-            (ids[0], "Vin blanc", 4.00, "🥂"),
+            # a manger (1)
+            (ids[0], "Grillades", 12.00, "🥩"),
+            (ids[0], "Bifanas", 8.00, "🫓"),
+            (ids[0], "Frites", 5.00, "🍟"),
 
-            # Buvette Terrain A (2)
-            (ids[1], "Soda", 3.00, "🥤"),
-            (ids[1], "Eau", 2.00, "💧"),
-            (ids[1], "Ice Tea", 3.00, "🧋"),
+            # Boissons (2)
+            (ids[1], "Minérale 3DL (Coca,..)", 3.00, "🥤"),
+            (ids[1], "Eau Minéral 1.5LT", 6.00, "💧"),
+            (ids[1], "Bière", 4.00, "🍺"),
+            (ids[1], "Bière sans alcool", 4.00, "🍺"),
+            (ids[1], "Mateus Rosé", 15.00, "🍷"),
+            (ids[1], "Vin au verre", 4.00, "🍷"),
+            (ids[1], "Grogu", 5.00, "🥃"),
+            (ids[1], "Red bull", 5.00, "🥤"),
+            (ids[1], "Café", 3.00, "☕"),
 
-            # Buvette Terrain B (3)
-            (ids[2], "Soda", 3.00, "🥤"),
-            (ids[2], "Eau", 2.00, "💧"),
-            (ids[2], "Barre énergétique", 2.50, "🍫"),
-
-            # Restauration (4)
-            (ids[3], "Saucisse-pain", 5.00, "🌭"),
-            (ids[3], "Sandwich", 6.00, "🥪"),
-            (ids[3], "Frites", 4.00, "🍟"),
-            (ids[3], "Hamburger", 8.00, "🍔"),
-            (ids[3], "Hot-dog", 5.00, "🌭"),
-
-            # Confiserie (5)
-            (ids[4], "Chips", 2.00, "🍿"),
-            (ids[4], "Bonbons", 1.50, "🍬"),
-            (ids[4], "Chocolat", 2.00, "🍫"),
-
-            # Café & Desserts (6)
-            (ids[5], "Café", 2.50, "☕"),
-            (ids[5], "Cappuccino", 3.50, "☕"),
-            (ids[5], "Thé", 2.50, "🍵"),
-            (ids[5], "Croissant", 2.00, "🥐"),
-            (ids[5], "Muffin", 3.00, "🧁"),
-
-            # Cocktails (7)
-            (ids[6], "Mojito", 8.00, "🍹"),
-            (ids[6], "Virgin Mojito", 6.00, "🍸"),
-            (ids[6], "Spritz", 7.00, "🥂"),
-
-            # Vins & Spiritueux (8)
-            (ids[7], "Whisky", 7.00, "🥃"),
-            (ids[7], "Vodka Shot", 4.00, "🍸"),
-            (ids[7], "Vin rosé", 4.00, "🍷"),
-
-            # Glaces (9)
-            (ids[8], "Cornet Vanille", 3.00, "🍦"),
-            (ids[8], "Cornet Chocolat", 3.00, "🍦"),
-            (ids[8], "Glace Magnum", 4.00, "🍫"),
-
-            # Produits Locaux (10)
-            (ids[9], "Saucisson artisanal", 6.00, "🥓"),
-            (ids[9], "Fromage local", 5.00, "🧀"),
-            (ids[9], "Pain maison", 3.00, "🍞"),
+            # Cocktails (3)
+            (ids[2], "Virgin Mojito (+ 2chf)", 10.00, "🍸"),
+            (ids[2], "Mojito (+ 2chf)", 12.00, "🍸"),
+            (ids[2], "Caipirinha (+ 2chf)", 10.00, "🍹"),
+            (ids[2], "Spritz (+ 2chf)", 10.00, "🍹"),
         ]
 
         cur.executemany(
