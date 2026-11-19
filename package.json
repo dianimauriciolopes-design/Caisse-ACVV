@@ -2,14 +2,7 @@
   "name": "caisse-acvv",
   "private": true,
   "scripts": {
-    "dev": "wrangler pages dev public",
-    "deploy": "wrangler pages deploy public"
-  },
-  "devDependencies": {
-    "wrangler": "^4.0.0"
-  },
-  "allowScripts": {
-    "esbuild@0.28.2": true,
-    "workerd@1.20261118.1": true
+    "dev": "npx wrangler@latest pages dev public",
+    "deploy": "npx wrangler@latest pages deploy public"
   }
 }
