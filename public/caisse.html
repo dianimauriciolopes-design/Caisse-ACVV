@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Caisse ACCVS</title>
+
+<!-- Polices via bunny.net (jamais bloqué, RGPD-friendly, alternative à Google Fonts) -->
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=bebas-neue:400|dm-sans:400,500,600,700&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bleu:  #003893;
+    --bleu2: #0047b8;
+    --bleu3: #1a5fd4;
+    --rouge: #cf2027;
+    --jaune: #f7d000;
+    --blanc: #ffffff;
+    --noir:  #0a0c14;
+    --gris:  #111827;
+    --gris2: #1e2433;
+    --gris3: #2d3447;
+    --twint: #00b0ea;
+  }
+
+  html, body { height: 100%; }
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--bleu);
+    padding: 0.7rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid var(--rouge);
+    flex-shrink: 0;
+    gap: 0.5rem;
+  }
+  .header-left { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+  .btn-back {
+    background: rgba(255,255,255,0.15); border: none; border-radius: 8px;
+    color: var(--blanc); font-size: 1.1rem; width: 36px; height: 36px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stand-title {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 1.4rem; letter-spacing: 0.06em; line-height: 1.1;
+  }
+  .stand-title small {
+    display: block; font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem; opacity: 0.6; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .header-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+  .stars-sm { color: var(--jaune); font-size: 0.65rem; letter-spacing: 0.2em; }
+  .header-total .label { font-size: 0.62rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; text-align: right; }
+  .header-total .montant {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 1.9rem; color: var(--jaune); letter-spacing: 0.03em; line-height: 1;
+  }
+
+  /* ── LAYOUT PRINCIPAL ── */
+  .main {
+    display: flex; flex: 1; min-height: 0; overflow: hidden;
+  }
+
+  /* ── PANEL ARTICLES (gauche) ── */
+  .articles-panel {
+    flex: 1; overflow-y: auto; padding: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.6rem; align-content: start;
+  }
+  .articles-panel::-webkit-scrollbar { width: 4px; }
+  .articles-panel::-webkit-scrollbar-thumb { background: var(--gris3); border-radius: 4px; }
+
+  .article-btn {
+    background: var(--gris); border: 2px solid var(--gris2);
+    border-radius: 12px; padding: 0.85rem 0.5rem;
+    cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; gap: 0.3rem;
+    transition: border-color 0.15s, transform 0.1s, background 0.15s;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden; width: 100%;
+  }
+  .article-btn::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--bleu2), var(--rouge));
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .article-btn:active { transform: scale(0.94); background: var(--gris2); }
+  .article-btn:hover { border-color: var(--bleu3); }
+  .article-btn:hover::after { opacity: 1; }
+
+  .article-emoji { font-size: 1.8rem; line-height: 1; }
+  .article-nom {
+    font-size: 0.78rem; font-weight: 600; text-align: center;
+    line-height: 1.2; color: var(--blanc); word-break: break-word;
+  }
+  .article-prix {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 1.1rem; color: var(--jaune); letter-spacing: 0.05em;
+  }
+
+  /* ── PANEL PANIER (droite) ── */
+  .panier-panel {
+    width: 285px; background: var(--gris);
+    border-left: 2px solid var(--gris2);
+    display: flex; flex-direction: column; flex-shrink: 0;
+    overflow: hidden;
+  }
+  .panier-header {
+    padding: 0.7rem 1rem; flex-shrink: 0;
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--gris2);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--gris2);
+  }
+  .panier-count {
+    background: var(--rouge); color: white;
+    font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 700;
+    padding: 0.2rem 0.5rem; border-radius: 20px;
+  }
+  .panier-items { flex: 1; overflow-y: auto; padding: 0.5rem; min-height: 0; }
+  .panier-items::-webkit-scrollbar { width: 3px; }
+  .panier-items::-webkit-scrollbar-thumb { background: var(--gris3); }
+
+  .panier-vide { text-align: center; color: #2a3550; padding: 2rem 1rem; font-size: 0.82rem; }
+  .panier-vide .icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+
+  .panier-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem; border-radius: 8px;
+    border-bottom: 1px solid var(--gris2); font-size: 0.8rem;
+  }
+  .panier-item:last-child { border-bottom: none; }
+  .panier-item-info { flex: 1; min-width: 0; }
+  .panier-item-nom { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .panier-item-prix { font-size: 0.72rem; color: #5a6a8a; }
+  .panier-item-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+  .qty-btn {
+    background: var(--gris2); border: none; border-radius: 6px;
+    color: var(--blanc); width: 26px; height: 26px; cursor: pointer;
+    font-size: 0.9rem; display: flex; align-items: center; justify-content: center;
+  }
+  .qty-btn.remove { color: var(--rouge); }
+  .qty-num { font-weight: 700; font-size: 0.88rem; min-width: 18px; text-align: center; }
+
+  /* ── FOOTER PANIER ── */
+  .panier-footer { padding: 0.75rem; border-top: 2px solid var(--gris2); flex-shrink: 0; }
+  .total-ligne { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem; }
+  .total-label { font-size: 0.82rem; color: #5a6a8a; }
+  .total-montant {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 2.1rem; letter-spacing: 0.03em;
+  }
+  .total-montant span { font-size: 0.95rem; opacity: 0.55; margin-left: 2px; }
+
+  .paiement-btns { display: flex; flex-direction: column; gap: 0.5rem; }
+  .btn-pay {
+    padding: 0.85rem; border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    transition: transform 0.1s, opacity 0.15s; letter-spacing: 0.03em; width: 100%;
+  }
+  .btn-pay:active { transform: scale(0.97); }
+  .btn-pay:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-cash  { background: var(--bleu2); color: white; }
+  .btn-twint { background: var(--twint);  color: white; }
+  .btn-vider {
+    background: transparent; color: var(--rouge);
+    border: 1px solid var(--rouge); padding: 0.5rem; border-radius: 8px;
+    font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans', sans-serif; width: 100%;
+  }
+
+  /* ── MODALES ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(5,8,20,0.92);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--gris); border: 2px solid var(--gris3);
+    border-radius: 18px; padding: 2rem; max-width: 370px; width: 92%;
+    transform: translateY(20px); transition: transform 0.2s; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .modal::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(to right, var(--bleu2), var(--rouge), var(--jaune));
+  }
+  .modal-overlay.active .modal { transform: translateY(0); }
+  .modal h2 {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 1.7rem; letter-spacing: 0.05em; margin-bottom: 0.4rem;
+  }
+  .modal-montant {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-size: 3.5rem; color: var(--jaune); letter-spacing: 0.03em; line-height: 1; margin: 0.4rem 0;
+  }
+  .modal-sub { color: #5a6a8a; font-size: 0.82rem; margin-bottom: 1.25rem; }
+  .modal-btns { display: flex; flex-direction: column; gap: 0.6rem; }
+  .modal-btns .btn-pay { width: 100%; }
+  .btn-annuler-modal {
+    background: transparent; border: 1px solid var(--gris3); color: #5a6a8a;
+    padding: 0.6rem; border-radius: 8px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; width: 100%;
+  }
+  .twint-qr-zone { background: white; border-radius: 14px; padding: 1rem; display: inline-block; margin: 0.6rem 0; }
+  .twint-qr-zone img { width: 170px; height: 170px; display: block; }
+  .twint-instructions { font-size: 0.82rem; color: #5a6a8a; margin-bottom: 1rem; line-height: 1.5; }
+  .twint-instructions strong { color: var(--twint); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bleu2); color: white;
+    padding: 0.7rem 1.5rem; border-radius: 30px;
+    font-weight: 600; font-size: 0.88rem; z-index: 200;
+    transition: transform 0.3s ease; white-space: nowrap;
+    border: 2px solid var(--jaune);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--rouge); border-color: var(--rouge); }
+
+  /* ── RESPONSIVE TABLETTE ── */
+  @media (max-width: 768px) {
+    body { overflow: auto; height: auto; }
+    .main { flex-direction: column; overflow: visible; height: auto; }
+    .articles-panel {
+      overflow: visible; height: auto;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+    .panier-panel {
+      width: 100%; border-left: none;
+      border-top: 2px solid var(--gris2);
+      overflow: visible; height: auto;
+    }
+    .panier-items { overflow: visible; height: auto; }
+  }
+
+  @media (max-width: 480px) {
+    .header { flex-wrap: wrap; }
+    .header-right { width: 90%; justify-content: space-between; }
+    .articles-panel { grid-template-columns: repeat(3, 1fr); }
+    .article-emoji { font-size: 1.5rem; }
+    .article-nom { font-size: 0.7rem; }
+    .article-prix { font-size: 0.95rem; }
+  }
+
+/* --- RESPONSIVE GLOBAL POUR PETITS TÉLÉPHONES --- */
+@media (max-width: 760px) {
+
+    /* HEADER */
+    .header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .header-left,
+    .header-right {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* TITRES */
+    .stand-title,
+    .page-title,
+    .admin-title,
+    .dashboard-title {
+        font-size: clamp(1rem, 4.5vw, 1.6rem);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stand-title small,
+    .page-sub,
+    .admin-sub,
+    .dashboard-sub {
+        font-size: clamp(0.55rem, 2.5vw, 0.75rem);
+        opacity: 0.7;
+    }
+
+    /* BOUTON RETOUR */
+    .btn-back {
+        width: clamp(28px, 8vw, 36px);
+        height: clamp(28px, 8vw, 36px);
+        font-size: clamp(1rem, 4vw, 1.3rem);
+    }
+
+    /* ÉTOILES */
+    .stars-sm,
+    .stars-deco {
+        font-size: clamp(0.5rem, 2.5vw, 0.8rem);
+        white-space: nowrap;
+    }
+
+    /* TOTAL HEADER */
+    .header-total .label {
+        font-size: clamp(0.5rem, 2.5vw, 0.75rem);
+    }
+
+    .header-total .montant {
+        font-size: clamp(1.2rem, 6vw, 1.9rem);
+        white-space: nowrap;
+    }
+
+    /* BOUTONS NAVIGATION */
+    .btn-dashboard,
+    .btn-admin,
+    .btn-nav {
+        font-size: clamp(0.55rem, 2.5vw, 0.75rem);
+        padding: 0.45rem 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* GRILLES (index, admin, dashboard) */
+    .stands-grid,
+    .admin-grid,
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.7rem;
+        padding: 0 1rem 2rem;
+    }
+
+    /* CARTES */
+    .stand-card,
+    .admin-card,
+    .dashboard-card {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    /* TABLEAUX */
+    table {
+        font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="header">
+  <div class="header-left">
+    <button class="btn-back" onclick="window.location='/'">←</button>
+    <div class="stand-title">
+      <span id="stand-nom">…</span>
+      <small>ACVV · Caisse active</small>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="stars-sm">★ ★ ★ ★ ★</div>
+    <div class="header-total">
+      <div class="label">Total panier</div>
+      <div class="montant" id="header-total">0.00 CHF</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ARTICLES -->
+  <div class="articles-panel" id="articles-panel"></div>
+
+  <!-- PANIER -->
+  <div class="panier-panel">
+    <div class="panier-header">
+      <span>🧺 Panier</span>
+      <span class="panier-count" id="panier-count">0</span>
+    </div>
+    <div class="panier-items" id="panier-items">
+      <div class="panier-vide"><span class="icon">🛒</span>Ajoute des articles</div>
+    </div>
+    <div class="panier-footer">
+      <div class="total-ligne">
+        <span class="total-label">Total</span>
+        <div class="total-montant" id="total-montant">0.00 <span>CHF</span></div>
+      </div>
+      <div class="paiement-btns">
+        <button class="btn-pay btn-cash"  id="btn-cash"  onclick="ouvrirModalPaiement('cash')"  disabled>💵 Payer en cash</button>
+        <button class="btn-pay btn-twint" id="btn-twint" onclick="ouvrirModalPaiement('twint')" disabled>📱 Payer par TWINT</button>
+        <button class="btn-vider" onclick="viderPanier()">🗑 Vider le panier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE CASH -->
+<div class="modal-overlay" id="modal-cash">
+  <div class="modal">
+    <h2>💵 Paiement Cash</h2>
+    <div class="modal-montant" id="cash-montant-affiché">0.00</div>
+    <div class="modal-sub">CHF à encaisser</div>
+    <div class="modal-btns">
+      <button class="btn-pay btn-cash" onclick="confirmerPaiement('cash')">✅ Paiement reçu</button>
+      <button class="btn-annuler-modal" onclick="fermerModales()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE MONTANT LIBRE -->
+<div class="modal-overlay" id="modal-libre">
+  <div class="modal">
+    <h2>✏️ Montant libre</h2>
+    <input type="number" id="input-montant-libre" step="0.50" min="0.50" placeholder="0.00"
+      style="width:100%;background:var(--gris2);border:2px solid var(--gris3);border-radius:10px;color:var(--blanc);font-size:1.5rem;padding:.75rem;text-align:center;margin:1rem 0;font-family:'Bebas Neue','Arial Black',sans-serif;letter-spacing:.05em">
+    <input type="text" id="input-nom-libre" placeholder="Description (ex: Entrée, Don…)"
+      style="width:100%;background:var(--gris2);border:2px solid var(--gris3);border-radius:10px;color:var(--blanc);font-size:.88rem;padding:.6rem .75rem;margin-bottom:1rem;font-family:'DM Sans',sans-serif">
+    <div class="modal-btns">
+      <button class="btn-pay" onclick="validerMontantLibre()" style="background:var(--gris3);color:var(--blanc)">Ajouter au panier</button>
+      <button class="btn-annuler-modal" onclick="fermerModales()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/supabase-client.js"></script>
+<script>
+let STAND_ID = null;
+let STAND_NOM = '';
+let panier = [];
+
+function ajouterArticle(id, nom, prix, emoji) {
+  const ex = panier.find(i => i.id === id);
+  if (ex) ex.qty++;
+  else panier.push({ id, nom, prix: parseFloat(prix), emoji, qty: 1 });
+  renderPanier();
+  const btn = event.currentTarget;
+  btn.style.borderColor = 'var(--jaune)';
+  setTimeout(() => btn.style.borderColor = '', 300);
+}
+
+function modifierQty(id, d) {
+  const item = panier.find(i => i.id === id);
+  if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) panier = panier.filter(i => i.id !== id);
+  renderPanier();
+}
+
+function viderPanier() { panier = []; renderPanier(); }
+function getTotal() { return panier.reduce((s, i) => s + i.prix * i.qty, 0); }
+
+function renderPanier() {
+  const total = getTotal();
+  const count = panier.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('panier-count').textContent = count;
+  document.getElementById('header-total').textContent = total.toFixed(2) + ' CHF';
+  document.getElementById('total-montant').innerHTML = total.toFixed(2) + ' <span>CHF</span>';
+  const has = panier.length > 0;
+  document.getElementById('btn-cash').disabled  = !has;
+  document.getElementById('btn-twint').disabled = !has;
+  const c = document.getElementById('panier-items');
+  if (!has) { c.innerHTML = '<div class="panier-vide"><span class="icon">🛒</span>Ajoute des articles</div>'; return; }
+  c.innerHTML = panier.map(item => `
+    <div class="panier-item">
+      <span style="font-size:1.1rem">${item.emoji}</span>
+      <div class="panier-item-info">
+        <div class="panier-item-nom">${item.nom}</div>
+        <div class="panier-item-prix">${(item.prix * item.qty).toFixed(2)} CHF</div>
+      </div>
+      <div class="panier-item-controls">
+        <button class="qty-btn remove" onclick='modifierQty(${JSON.stringify(item.id)}, -1)'>−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick='modifierQty(${JSON.stringify(item.id)}, 1)'>+</button>
+      </div>
+    </div>`).join('');
+}
+
+function ouvrirModalPaiement(mode) {
+  const t = getTotal();
+
+  if (mode === 'cash') {
+    document.getElementById('cash-montant-affiché').textContent = t.toFixed(2);
+    document.getElementById('modal-cash').classList.add('active');
+    return;
+  }
+
+  window.location.href = `/twint.html?stand=${STAND_ID}&montant=${t.toFixed(2)}`;
+}
+
+function fermerModales() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+}
+
+function ouvrirMontantLibre() {
+  document.getElementById('input-montant-libre').value = '';
+  document.getElementById('input-nom-libre').value = '';
+  document.getElementById('modal-libre').classList.add('active');
+  setTimeout(() => document.getElementById('input-montant-libre').focus(), 300);
+}
+
+function validerMontantLibre() {
+  const m = parseFloat(document.getElementById('input-montant-libre').value);
+  const n = document.getElementById('input-nom-libre').value || 'Montant libre';
+  if (!m || m <= 0) { afficherToast('Montant invalide', true); return; }
+  panier.push({ id: 'libre_' + Date.now(), nom: n, prix: m, emoji: '✏️', qty: 1 });
+  renderPanier();
+  fermerModales();
+}
+
+async function confirmerPaiement(mode) {
+  const total  = getTotal();
+  const detail = panier.map(i => ({ nom: i.nom, qty: i.qty, prix: i.prix, emoji: i.emoji }));
+
+  const { error } = await sb.from('transactions').insert({
+    stand_id: STAND_ID,
+    stand_nom: STAND_NOM,
+    montant: total,
+    mode_paiement: mode,
+    detail_articles: detail
+  });
+
+  if (!error) {
+    fermerModales(); viderPanier();
+    afficherToast(mode === 'cash' ? '✅ Cash encaissé !' : '✅ TWINT confirmé !');
+  } else {
+    afficherToast('Erreur : ' + error.message, true);
+  }
+}
+
+function afficherToast(msg, err = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (err ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) fermerModales(); })
+);
+
+function renderCaisse(stand, articles) {
+  STAND_NOM = stand.nom;
+  document.title = `Caisse ACCVS — ${stand.nom}`;
+  document.getElementById('stand-nom').textContent = stand.nom;
+
+  const panel = document.getElementById('articles-panel');
+  panel.innerHTML = (articles || []).map(a => `
+    <button class="article-btn" onclick='ajouterArticle(${a.id}, ${JSON.stringify(a.nom)}, ${a.prix}, ${JSON.stringify(a.emoji)})'>
+      <span class="article-emoji">${a.emoji}</span>
+      <span class="article-nom">${a.nom}</span>
+      <span class="article-prix">${Number(a.prix).toFixed(2)} CHF</span>
+    </button>`).join('') + `
+    <button class="article-btn" onclick="ouvrirMontantLibre()" style="border-style:dashed;border-color:var(--gris3)">
+      <span class="article-emoji">✏️</span>
+      <span class="article-nom">Montant libre</span>
+      <span class="article-prix" style="color:#3a4a6a">Saisir</span>
+    </button>`;
+}
+
+async function init() {
+  const params = new URLSearchParams(location.search);
+  STAND_ID = parseInt(params.get('id'), 10);
+  const cacheKey = 'acvv_caisse_cache_' + STAND_ID;
+
+  // Affiche tout de suite la dernière version connue de ce stand (si on y
+  // revient), pendant que les données fraîches arrivent en fond.
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const { stand, articles } = JSON.parse(cached);
+      renderCaisse(stand, articles);
+    } catch {}
+  }
+
+  const { data: stand, error: standError } = await sb
+    .from('stands').select('*').eq('id', STAND_ID).single();
+
+  if (standError || !stand) {
+    if (!cached) {
+      document.body.innerHTML = '<p style="color:white;padding:2rem">Stand introuvable</p>';
+    }
+    return;
+  }
+
+  const { data: articles } = await sb
+    .from('articles').select('*')
+    .eq('stand_id', STAND_ID).eq('actif', true)
+    .order('id');
+
+  sessionStorage.setItem(cacheKey, JSON.stringify({ stand, articles: articles || [] }));
+  renderCaisse(stand, articles || []);
+}
+
+init();
+</script>
+</body>
+</html>

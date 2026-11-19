@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACVV — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bleu:#003893;--bleu2:#0047b8;--bleu3:#1a5fd4;--jaune:#f7d000;--noir:#0f0f0f;--gris:#111827;--gris2:#1e2433;--gris3:#2d3447;--blanc:#ffffff;--rouge:#cf2027;--creme:#f4f1e8}
+  body{background:var(--noir);color:var(--blanc);font-family:'DM Sans',sans-serif;min-height:100vh}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gris3);border-radius:4px}
+
+  header{background:var(--bleu);border-bottom:3px solid var(--rouge);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em}
+  .logo span{color:var(--jaune)}
+  .btn-back{background:var(--gris3);border:none;border-radius:8px;color:var(--blanc);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;padding:.5rem 1rem;cursor:pointer;text-decoration:none}
+
+  .container{max-width:900px;margin:0 auto;padding:1.5rem}
+  h2{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.06em;margin-bottom:1rem;color:var(--jaune)}
+
+  .card{background:var(--gris);border:2px solid var(--gris2);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem}
+
+  .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:1rem}
+  .form-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem}
+  .form-row input,select{flex:1;min-width:120px;background:var(--gris2);border:2px solid var(--gris3);border-radius:8px;color:var(--blanc);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:.55rem .75rem}
+  .form-row input:focus{outline:none;border-color:var(--bleu2)}
+  .btn-add{background:var(--bleu2);border:none;border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;padding:.6rem 1.25rem;cursor:pointer}
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.75rem}
+  th{text-align:left;padding:.5rem .75rem;color:#555;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--gris2)}
+  td{padding:.6rem .75rem;border-bottom:1px solid var(--gris2);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--gris2)}
+  .btn-del{background:transparent;border:1px solid var(--rouge);border-radius:6px;color:var(--rouge);font-size:.72rem;padding:.2rem .5rem;cursor:pointer}
+  .prix-cell{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--jaune);letter-spacing:.03em}
+  .stand-badge{background:var(--gris3);font-size:.72rem;padding:.15rem .45rem;border-radius:5px;color:#aaa}
+
+  @media(max-width:760px){
+    header{flex-direction:column;align-items:flex-start;gap:1rem;}
+    .logo{font-size:1.35rem;}
+    .container{padding:1rem;}
+    .form-row{flex-direction:column;}
+    .form-row input,select,.btn-add{width:100%;}
+    table{font-size:.78rem;}
+  }
+
+  @media (max-width: 760px) {
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .logo-zone {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+    }
+
+    .logo {
+        font-size: 1.6rem;
+    }
+
+    .logo .sub {
+        font-size: 0.6rem;
+    }
+
+    .header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.3em;
+    }
+
+    .btn-back {
+        width: auto;
+        padding: 0.5rem 1rem;
+        font-size: 0.55rem;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⚙️ ACVV <span>Administration</span></div>
+  <a href="/" class="btn-back">← Accueil</a>
+</header>
+
+<div class="container">
+
+  <!-- STANDS -->
+  <h2>📍 Stands</h2>
+  <div class="card">
+    <div class="form-row">
+      <input type="text" id="stand-nom" placeholder="Nom du stand (ex: Bar VIP)">
+      <input type="text" id="stand-desc" placeholder="Description">
+      <button class="btn-add" onclick="ajouterStand()">+ Ajouter</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>ID</th><th>Nom</th><th>Description</th></tr></thead>
+        <tbody id="stands-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ARTICLES -->
+  <h2>🍺 Articles</h2>
+  <div class="card">
+    <div class="form-row">
+      <select id="art-stand"></select>
+      <input type="text" id="art-emoji" placeholder="Emoji" style="max-width:70px">
+      <input type="text" id="art-nom" placeholder="Nom de l'article">
+      <input type="number" id="art-prix" placeholder="Prix CHF" step="0.50" min="0.50">
+      <button class="btn-add" onclick="ajouterArticle()">+ Ajouter</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th></th><th>Nom</th><th>Stand</th><th>Prix</th><th></th></tr></thead>
+        <tbody id="articles-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/supabase-client.js"></script>
+<script src="/js/auth-gate.js"></script>
+<script>
+requireAdminPassword().then(chargerDonnees);
+
+async function chargerDonnees() {
+  const { data: stands } = await sb.from('stands').select('*').order('id');
+  const { data: articles } = await sb
+    .from('articles')
+    .select('*, stands(nom)')
+    .eq('actif', true)
+    .order('stand_id');
+
+  renderStands(stands || []);
+  renderStandOptions(stands || []);
+  renderArticles(articles || []);
+}
+
+function renderStands(stands) {
+  document.getElementById('stands-table-body').innerHTML = stands.map(s => `
+    <tr><td>#${s.id}</td><td>${s.nom}</td><td style="color:#666">${s.description || '—'}</td></tr>`).join('');
+}
+
+function renderStandOptions(stands) {
+  document.getElementById('art-stand').innerHTML =
+    stands.map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+}
+
+function renderArticles(articles) {
+  document.getElementById('articles-table-body').innerHTML = articles.map(a => `
+    <tr id="art-row-${a.id}">
+      <td>${a.emoji}</td>
+      <td>${a.nom}</td>
+      <td><span class="stand-badge">${a.stands ? a.stands.nom : ''}</span></td>
+      <td class="prix-cell">${Number(a.prix).toFixed(2)} CHF</td>
+      <td><button class="btn-del" onclick="supprimerArticle(${a.id})">Supprimer</button></td>
+    </tr>`).join('');
+}
+
+async function ajouterStand() {
+  const nom = document.getElementById('stand-nom').value.trim();
+  if (!nom) { alert('Nom requis'); return; }
+
+  const { error } = await sb.from('stands').insert({
+    nom,
+    description: document.getElementById('stand-desc').value
+  });
+
+  if (!error) location.reload();
+  else alert(error.message);
+}
+
+async function ajouterArticle() {
+  const stand_id = parseInt(document.getElementById('art-stand').value, 10);
+  const nom = document.getElementById('art-nom').value.trim();
+  const prix = parseFloat(document.getElementById('art-prix').value);
+  const emoji = document.getElementById('art-emoji').value || '🍺';
+
+  if (!nom || !prix) { alert('Nom et prix requis'); return; }
+
+  const { error } = await sb.from('articles').insert({ stand_id, nom, prix, emoji });
+
+  if (!error) location.reload();
+  else alert(error.message);
+}
+
+async function supprimerArticle(id) {
+  if (!confirm('Supprimer cet article ?')) return;
+  await sb.from('articles').update({ actif: false }).eq('id', id);
+  const row = document.getElementById('art-row-' + id);
+  if (row) row.remove();
+}
+
+</script>
+</body>
+</html>

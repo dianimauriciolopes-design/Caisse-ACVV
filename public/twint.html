@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWINT — Paiement</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #00b0ea;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  .title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.08em; opacity: 0.9; }
+  .montant { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; letter-spacing: 0.03em; line-height: 1; }
+  .chf { font-size: 2rem; opacity: 0.7; }
+  .qr-box { background: white; border-radius: 20px; padding: 1.25rem; display: inline-block; }
+  .qr-box img { width: 220px; height: 220px; max-width: 90vw; display: block; }
+  .instruction { font-size: 1rem; opacity: 0.85; max-width: 280px; line-height: 1.5; margin: 0 auto; }
+  .instruction strong { font-weight: 700; }
+  @media (max-width: 520px) {
+    .title { font-size: 1.6rem; }
+    .montant { font-size: 3rem; }
+    .instruction { max-width: 100%; font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="title">📱 <span id="stand-nom">…</span></div>
+  <div class="montant"><span id="montant1">?</span> <span class="chf">CHF</span></div>
+  <div class="qr-box">
+    <img src="/img/qrcode.jpg" alt="QR TWINT">
+  </div>
+  <p class="instruction">
+    Scanne avec <strong>TWINT</strong><br>
+    et entre le montant<br>
+    <strong><span id="montant2">?</span> CHF</strong>
+  </p>
+  <a href="#"
+   onclick="confirmerPaiementTwint(); return false;"
+   style="margin-top:20px;display:inline-block;background:white;color:#00b0ea;padding:12px 20px;border-radius:12px;font-weight:600;text-decoration:none;font-size:1.2rem;">
+   ✅ Paiement reçu
+</a>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/supabase-client.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const STAND_ID = parseInt(params.get('stand'), 10);
+const MONTANT = parseFloat(params.get('montant'));
+let STAND_NOM = '';
+
+async function init() {
+  document.getElementById('montant1').textContent = MONTANT.toFixed(2);
+  document.getElementById('montant2').textContent = MONTANT.toFixed(2);
+
+  const { data: stand } = await sb.from('stands').select('nom').eq('id', STAND_ID).single();
+  STAND_NOM = stand ? stand.nom : '';
+  document.getElementById('stand-nom').textContent = STAND_NOM;
+}
+
+async function confirmerPaiementTwint() {
+  const { error } = await sb.from('transactions').insert({
+    stand_id: STAND_ID,
+    stand_nom: STAND_NOM,
+    montant: MONTANT,
+    mode_paiement: 'twint',
+    detail_articles: []
+  });
+
+  if (!error) {
+    window.location.href = '/caisse.html?id=' + STAND_ID;
+  } else {
+    alert("Erreur lors de l'enregistrement : " + error.message);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
